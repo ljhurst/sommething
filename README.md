@@ -55,39 +55,13 @@ For detailed instructions, see the [Setup Guide](docs/setup/SETUP.md).
 ## Development
 
 ```bash
-# Run dev server
-npm run dev
-
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Format code
-npm run format
-
-# Check formatting
-npm run format:check
-
-# Lint code
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-
-# Type check
-npm run type-check
-
-# Run all checks (type-check + format + lint + test)
-npm run validate
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
+npm run dev        # Start dev server
+npm test           # Run tests
+npm run validate   # Run all checks (type + format + lint + test)
+npm run build      # Build for production
 ```
+
+See [CI/CD Documentation](.github/workflows/README.md) for all available commands and checks.
 
 ## Project Structure
 
@@ -110,44 +84,30 @@ src/
 tests/                      # Test files (mirrors src/)
 ```
 
-## Testing Philosophy
+## Testing
 
-We follow Test-Driven Development (TDD):
+31 unit tests covering utilities, components, and analytics. Run with `npm test`.
 
-1. Write tests first
-2. Implement minimal code to pass tests
-3. Refactor while keeping tests green
-
-Focus on testing public APIs and user-facing functionality. Keep tests simple and focused.
+See [Local Testing Guide](docs/setup/LOCAL_TESTING_GUIDE.md) for details.
 
 ## Design Principles
 
-- **Mobile-first**: Optimize for phone, enhance for desktop
-- **Visual fidelity**: The grid represents your actual fridge
-- **Fast input**: Minimize taps and typing
-- **Progressive enhancement**: 2D circles on mobile, 3D on desktop
-- **Test-driven**: Quality and maintainability through tests
-- **Small, focused functions**: Avoid monolithic code
+- **Mobile-first** - Optimize for phone, enhance for desktop
+- **Visual fidelity** - Grid represents your actual fridge
+- **Progressive enhancement** - 2D on mobile, 3D on desktop
+
+See [Vision](docs/product/VISION.md) for full product philosophy.
 
 ## Documentation
 
-All documentation is organized in the [`docs/`](docs/) folder:
+📚 **[Browse all documentation →](docs/)**
 
-### Setup & Getting Started
+Quick links:
 
-- **[Quick Start Guide](docs/setup/QUICKSTART.md)** - Get running in 5 minutes
-- **[Setup Guide](docs/setup/SETUP.md)** - Detailed setup, troubleshooting, and deployment
-- **[Local Testing Guide](docs/setup/LOCAL_TESTING_GUIDE.md)** - Testing locally
-
-### Product & Vision
-
-- **[Vision](docs/product/VISION.md)** - Product philosophy, UX goals, and roadmap
-- **[Project Summary](docs/product/PROJECT_SUMMARY.md)** - Complete project overview
-
-### Development
-
-- **[Implementation Status](docs/development/IMPLEMENTATION_STATUS.md)** - What's built and tested
-- **[Migration Notes](docs/development/MIGRATION_24_BOTTLES.md)** - Migration history
+- [5-Minute Quick Start](docs/setup/QUICKSTART.md)
+- [Full Setup Guide](docs/setup/SETUP.md)
+- [Product Vision](docs/product/VISION.md)
+- [CI/CD Guide](.github/workflows/README.md)
 
 ## Contributing
 

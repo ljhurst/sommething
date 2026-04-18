@@ -2,7 +2,7 @@
 
 ## CI Workflow (`ci.yml`)
 
-Runs on every push to `main`/`master` branches and on all pull requests targeting those branches.
+Runs on every push to `main` branch and on all pull requests targeting `main`.
 
 ### Steps
 

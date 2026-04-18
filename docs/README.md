@@ -21,10 +21,15 @@ Product vision, philosophy, and project overview.
 
 ### 🔧 [development/](development/)
 
-Development notes, implementation status, and technical history.
+Development notes and technical history.
 
-- **[IMPLEMENTATION_STATUS.md](development/IMPLEMENTATION_STATUS.md)** - Complete implementation status report with test results
-- **[MIGRATION_24_BOTTLES.md](development/MIGRATION_24_BOTTLES.md)** - Migration notes from 30-bottle to 24-bottle configuration
+- **[archive/MIGRATION_24_BOTTLES.md](development/archive/MIGRATION_24_BOTTLES.md)** - Historical: Migration from 30-bottle to 24-bottle configuration
+
+### ⚙️ CI/CD
+
+Continuous integration and deployment documentation.
+
+- **[.github/workflows/README.md](../.github/workflows/README.md)** - GitHub Actions CI/CD setup and usage
 
 ## 🗺️ Quick Navigation
 
@@ -38,7 +43,7 @@ Development notes, implementation status, and technical history.
 
 1. [Setup Guide](setup/SETUP.md) - Full setup instructions
 2. [Local Testing Guide](setup/LOCAL_TESTING_GUIDE.md) - Testing locally
-3. [Implementation Status](development/IMPLEMENTATION_STATUS.md) - See what's built
+3. [CI/CD Documentation](../.github/workflows/README.md) - Running tests and checks
 
 **Want to understand the product?**
 
