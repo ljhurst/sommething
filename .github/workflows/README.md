@@ -2,7 +2,7 @@
 
 ## CI Workflow (`ci.yml`)
 
-Runs on every push to `main` branch and on all pull requests targeting `main`.
+Runs on all pull requests targeting `main`.
 
 ### Steps
 
@@ -14,7 +14,7 @@ Runs on every push to `main` branch and on all pull requests targeting `main`.
 
 ### Requirements
 
-- Node.js 18
+- Node.js 20
 - All checks must pass for PR to be mergeable
 
 ### Local Testing

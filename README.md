@@ -1,6 +1,9 @@
 # Sommething 🍷
 
 [![CI](https://github.com/ljhurst/sommething/actions/workflows/ci.yml/badge.svg)](https://github.com/ljhurst/sommething/actions/workflows/ci.yml)
+[![Vercel Deployment](https://img.shields.io/github/deployments/ljhurst/sommething/production?label=vercel&logo=vercel)](https://vercel.com/ljhursts-projects/sommething)
+
+**Live App**: [https://sommething.vercel.app/](https://sommething.vercel.app/)
 
 A beautiful, intuitive wine fridge inventory tracker for your 24-bottle wine fridge (4 wide × 6 tall). Know what's in your collection, find the perfect bottle for any occasion, and track your wine journey over time.
 
@@ -55,11 +58,49 @@ For detailed instructions, see the [Setup Guide](docs/setup/SETUP.md).
 ## Development
 
 ```bash
-npm run dev        # Start dev server
-npm test           # Run tests
-npm run validate   # Run all checks (type + format + lint + test)
-npm run build      # Build for production
+# Run dev server
+npm run dev
+
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Format code
+npm run format
+
+# Check formatting
+npm run format:check
+
+# Lint code
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Type check
+npm run type-check
+
+# Run all checks (type-check + format + lint + test)
+npm run validate
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
+
+### Pre-Commit Hooks
+
+This project uses Husky to run checks before every commit:
+
+- Format and lint staged files (auto-fixes issues)
+- Type check entire project
+- Run all tests
+
+Hooks run automatically on `git commit`. See [.husky/README.md](.husky/README.md) for details.
 
 See [CI/CD Documentation](.github/workflows/README.md) for all available commands and checks.
 

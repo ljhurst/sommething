@@ -50,7 +50,10 @@ export default function Home() {
   };
 
   const handleConsumeBottle = async (bottleId: string, notes?: string, rating?: Rating) => {
-    const success = await consumeBottle({ bottleId, notes, rating });
+    const bottle = bottles.find((b) => b.id === bottleId);
+    if (!bottle) return;
+
+    const success = await consumeBottle({ bottle, notes, rating });
     if (success) {
       await refetch();
     }

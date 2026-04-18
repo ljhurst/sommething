@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { ConsumptionHistory, Rating } from '@/lib/types';
+import type { ConsumptionHistory, Rating, Bottle } from '@/lib/types';
 
 interface ConsumeBottleParams {
-  bottleId: string;
+  bottle: Bottle;
   notes?: string;
   rating?: Rating;
 }
@@ -18,9 +18,15 @@ export function useConsumption() {
       setError(null);
 
       const { error: insertError } = await supabase.from('consumption_history').insert({
-        bottle_id: params.bottleId,
-        notes: params.notes,
-        rating: params.rating,
+        bottle_id: params.bottle.id,
+        winery: params.bottle.winery,
+        name: params.bottle.name,
+        type: params.bottle.type,
+        year: params.bottle.year,
+        price: params.bottle.price ?? null,
+        score: params.bottle.score ?? null,
+        consumption_notes: params.notes ?? null,
+        consumption_rating: params.rating ?? null,
         consumed_at: new Date().toISOString(),
       });
 
@@ -29,7 +35,7 @@ export function useConsumption() {
       const { error: deleteError } = await supabase
         .from('bottles')
         .delete()
-        .eq('id', params.bottleId);
+        .eq('id', params.bottle.id);
 
       if (deleteError) throw deleteError;
 

@@ -3,18 +3,35 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useBottles } from '@/hooks/useBottles';
+import { useConsumption } from '@/hooks/useConsumption';
 import { calculateAnalytics, type AnalyticsData } from '@/lib/analytics';
 import { formatPrice, getWineColor } from '@/lib/utils';
+import type { ConsumptionHistory, BottleData } from '@/lib/types';
 
 export default function AnalyticsPage() {
   const { bottles, loading } = useBottles();
+  const { getConsumptionHistory } = useConsumption();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [showConsumed, setShowConsumed] = useState(false);
+  const [consumedBottles, setConsumedBottles] = useState<ConsumptionHistory[]>([]);
+  const [loadingConsumed, setLoadingConsumed] = useState(false);
 
   useEffect(() => {
-    if (bottles.length > 0) {
-      setAnalytics(calculateAnalytics(bottles));
+    if (showConsumed && consumedBottles.length === 0) {
+      setLoadingConsumed(true);
+      getConsumptionHistory()
+        .then((data) => setConsumedBottles(data))
+        .finally(() => setLoadingConsumed(false));
     }
-  }, [bottles]);
+  }, [showConsumed, consumedBottles.length, getConsumptionHistory]);
+
+  useEffect(() => {
+    const bottleData: BottleData[] = showConsumed ? [...bottles, ...consumedBottles] : bottles;
+
+    if (bottleData.length > 0) {
+      setAnalytics(calculateAnalytics(bottleData));
+    }
+  }, [bottles, consumedBottles, showConsumed]);
 
   if (loading) {
     return (
@@ -80,8 +97,39 @@ export default function AnalyticsPage() {
             Back to Fridge
           </Link>
 
-          <h1 className="text-3xl md:text-4xl font-bold text-wine-red mb-2">Analytics</h1>
-          <p className="text-gray-600">Insights into your collection</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-wine-red">Analytics</h1>
+            </div>
+            <div className="flex gap-2 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setShowConsumed(false)}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  !showConsumed
+                    ? 'bg-white text-wine-red shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Current Collection
+              </button>
+              <button
+                onClick={() => setShowConsumed(true)}
+                disabled={loadingConsumed}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  showConsumed
+                    ? 'bg-white text-wine-red shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                } ${loadingConsumed ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                All Time
+              </button>
+            </div>
+          </div>
+          <p className="text-gray-600">
+            {showConsumed
+              ? 'Insights across your entire collection history'
+              : 'Insights into your current collection'}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

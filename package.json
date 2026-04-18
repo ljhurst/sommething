@@ -10,10 +10,20 @@
     "lint:fix": "eslint --ignore-path .gitignore --fix \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\"",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "type-check": "tsc --noEmit",
-    "validate": "npm run type-check && npm run format:check && npm run lint && npm test"
+    "validate": "npm run type-check && npm run format:check && npm run lint && npm test",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{js,jsx,json,css,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@react-three/drei": "latest",
@@ -43,7 +53,9 @@
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
+    "lint-staged": "^15.2.11",
     "postcss": "^8",
     "prettier": "^3.8.3",
     "tailwindcss": "^3.4.1",

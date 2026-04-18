@@ -31,6 +31,14 @@ describe('Wine Utilities', () => {
     it('should handle zero price', () => {
       expect(formatPrice(0)).toBe('$0.00');
     });
+
+    it('should handle undefined price', () => {
+      expect(formatPrice(undefined)).toBe('N/A');
+    });
+
+    it('should handle null price', () => {
+      expect(formatPrice(null as any)).toBe('N/A');
+    });
   });
 
   describe('getAvailableSlots', () => {

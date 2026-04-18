@@ -99,4 +99,83 @@ describe('Analytics', () => {
     expect(analytics.averagePrice).toBe(0);
     expect(analytics.bottlesByType).toHaveLength(0);
   });
+
+  it('should handle bottles without prices (undefined)', () => {
+    const bottlesWithMissingPrices: Bottle[] = [
+      {
+        id: '1',
+        winery: 'Winery A',
+        name: 'Wine 1',
+        type: WineType.RED,
+        year: 2020,
+        price: 50.0,
+        slot_position: 1,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '2',
+        winery: 'Winery A',
+        name: 'Wine 2',
+        type: WineType.WHITE,
+        year: 2021,
+        slot_position: 2,
+        created_at: new Date().toISOString(),
+      },
+    ];
+
+    const analytics = calculateAnalytics(bottlesWithMissingPrices);
+    expect(analytics.totalBottles).toBe(2);
+    expect(analytics.totalValue).toBe(50.0);
+    expect(analytics.averagePrice).toBe(50.0);
+  });
+
+  it('should handle bottles without prices (null)', () => {
+    const bottlesWithNullPrices: Bottle[] = [
+      {
+        id: '1',
+        winery: 'Winery A',
+        name: 'Wine 1',
+        type: WineType.RED,
+        year: 2020,
+        price: 25.0,
+        slot_position: 1,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: '2',
+        winery: 'Winery A',
+        name: 'Wine 2',
+        type: WineType.WHITE,
+        year: 2021,
+        price: null as any,
+        slot_position: 2,
+        created_at: new Date().toISOString(),
+      },
+    ];
+
+    const analytics = calculateAnalytics(bottlesWithNullPrices);
+    expect(analytics.totalBottles).toBe(2);
+    expect(analytics.totalValue).toBe(25.0);
+    expect(analytics.averagePrice).toBe(25.0);
+  });
+
+  it('should handle all bottles without prices', () => {
+    const bottlesNoPrices: Bottle[] = [
+      {
+        id: '1',
+        winery: 'Winery A',
+        name: 'Wine 1',
+        type: WineType.RED,
+        year: 2020,
+        slot_position: 1,
+        created_at: new Date().toISOString(),
+      },
+    ];
+
+    const analytics = calculateAnalytics(bottlesNoPrices);
+    expect(analytics.totalBottles).toBe(1);
+    expect(analytics.totalValue).toBe(0);
+    expect(analytics.averagePrice).toBe(0);
+    expect(analytics.mostExpensiveBottle).toBeUndefined();
+  });
 });

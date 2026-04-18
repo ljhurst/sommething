@@ -13,7 +13,10 @@ export function getWineColor(type: WineType): string {
   return colors[type];
 }
 
-export function formatPrice(price: number): string {
+export function formatPrice(price: number | undefined): string {
+  if (price == null) {
+    return 'N/A';
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

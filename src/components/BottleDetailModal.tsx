@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatPrice, getWineColor } from '@/lib/utils';
 import { Rating, type Bottle } from '@/lib/types';
 
@@ -24,6 +24,17 @@ export function BottleDetailModal({
   const [consumeRating, setConsumeRating] = useState<Rating | undefined>();
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && !submitting) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, submitting, onClose]);
+
   if (!isOpen || !bottle) return null;
 
   const handleConsume = async () => {
@@ -43,8 +54,17 @@ export function BottleDetailModal({
 
   const color = getWineColor(bottle.type);
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget && !submitting) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50"
+      onClick={handleBackdropClick}
+    >
       <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Bottle Details</h2>
