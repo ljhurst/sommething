@@ -23,7 +23,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#722F37" />
         <meta name="description" content="Track your wine collection with elegance and ease" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <title>Sommething - Wine Fridge Tracker</title>
       </head>
       <body className={inter.className}>{children}</body>
