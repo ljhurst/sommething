@@ -2,7 +2,7 @@
 
 ## What Was Built
 
-A complete, production-ready Progressive Web App for tracking a 30-bottle wine fridge collection.
+A complete, production-ready Progressive Web App for tracking a 24-bottle wine fridge collection.
 
 ## ✅ Completed Features
 
@@ -133,7 +133,7 @@ Run tests: `npm test`
 **bottles**
 
 - Stores active bottles in the fridge
-- Unique slot positions (1-30)
+- Unique slot positions (1-24)
 - Full wine details (winery, name, type, year, price, score, notes, rating)
 
 **consumption_history**
@@ -161,6 +161,9 @@ Run tests: `npm test`
 
 ### Vercel (Recommended)
 
+**Live Deployment**: [https://sommething.vercel.app/](https://sommething.vercel.app/)  
+**Vercel Project**: [https://vercel.com/ljhursts-projects/sommething](https://vercel.com/ljhursts-projects/sommething)
+
 1. Push to GitHub
 2. Import to Vercel
 3. Add environment variables
@@ -168,7 +171,7 @@ Run tests: `npm test`
 
 ### Requirements
 
-- Node.js 18+
+- Node.js 20+
 - Supabase free tier account
 - Vercel free tier (optional)
 

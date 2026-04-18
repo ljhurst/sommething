@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js 18+ installed
+- Node.js 20+ installed
 - A Supabase account (free tier works great)
 - Git (for version control)
 
@@ -96,6 +96,9 @@ npm start
 
 ## Deploying to Vercel
 
+**Live Example**: [https://sommething.vercel.app/](https://sommething.vercel.app/)  
+**Vercel Dashboard**: [https://vercel.com/ljhursts-projects/sommething](https://vercel.com/ljhursts-projects/sommething)
+
 1. Push your code to GitHub
 2. Go to [vercel.com](https://vercel.com) and import your repository
 3. Add your environment variables in the Vercel dashboard:
@@ -129,7 +132,7 @@ Vercel will automatically deploy on every push to your main branch.
 
 - Make sure all dependencies are installed: `npm install`
 - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
-- Check that you're using Node.js 18+
+- Check that you're using Node.js 20+
 
 ## Next Steps
 

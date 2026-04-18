@@ -18,7 +18,7 @@ export interface Bottle {
   name: string;
   type: WineType;
   year: number;
-  price: number;
+  price?: number;
   score?: number;
   notes?: string;
   rating?: Rating;
@@ -26,12 +26,14 @@ export interface Bottle {
   created_at: string;
 }
 
-export interface ConsumptionHistory {
+export type BottleData = Pick<Bottle, 'winery' | 'name' | 'type' | 'year' | 'price' | 'score'>;
+
+export interface ConsumptionHistory extends BottleData {
   id: string;
   bottle_id: string;
   consumed_at: string;
-  notes?: string;
-  rating?: Rating;
+  consumption_notes?: string;
+  consumption_rating?: Rating;
 }
 
 export interface BottleWithHistory extends Bottle {
