@@ -1,0 +1,24 @@
+# Cursor Rules for Sommething Project
+
+## Code Style
+- Use TypeScript strict mode
+- Prefer functional components with hooks
+- Use Tailwind CSS for styling
+- Follow test-driven development
+
+## Component Guidelines
+- Keep components small and focused
+- Use composition over inheritance
+- Extract reusable logic into custom hooks
+- Write tests for all new components
+
+## Testing
+- Write tests before implementation (TDD)
+- Test public APIs, not implementation details
+- Use descriptive test names
+- Aim for meaningful coverage, not 100%
+
+## Git Commits
+- Use conventional commits format
+- Keep commits atomic and focused
+- Write clear, concise commit messages
