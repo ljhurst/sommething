@@ -1,4 +1,4 @@
-import { WineType, type BottleInstance } from './types';
+import { WineType, type BottleInstance, type Space } from './types';
 
 export function getWineColor(type: WineType): string {
   const colors: Record<WineType, string> = {
@@ -38,4 +38,33 @@ export function getBottleAtSlot(
   bottles: BottleInstance[]
 ): BottleInstance | undefined {
   return bottles.find((b) => b.slot_position === slot);
+}
+
+export function calculateCapacity(space: Space, bottleCount: number) {
+  const total = space.rows * space.columns;
+  const percentage = total > 0 ? Math.round((bottleCount / total) * 100) : 0;
+  return { total, used: bottleCount, percentage };
+}
+
+export function formatCapacity(used: number, total: number): string {
+  const percentage = total > 0 ? Math.round((used / total) * 100) : 0;
+  return `${used}/${total} (${percentage}%)`;
+}
+
+export function getSpaceTypeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    fridge: 'Fridge',
+    cellar: 'Cellar',
+    rack: 'Rack',
+  };
+  return labels[type] || type;
+}
+
+export function getSpaceTypeIcon(type: string): string {
+  const icons: Record<string, string> = {
+    fridge: '❄️',
+    cellar: '🏛️',
+    rack: '📦',
+  };
+  return icons[type] || '📍';
 }

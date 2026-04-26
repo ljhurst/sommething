@@ -30,7 +30,7 @@ export function BottleCircle({ bottle, onClick }: BottleCircleProps) {
         </span>
       </div>
 
-      <div className="absolute top-1 right-1 bg-black/30 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+      <div className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center bg-black/40 backdrop-blur-sm text-white text-[10px] font-semibold rounded-full ring-1 ring-white/20">
         {bottle.slot_position}
       </div>
     </button>

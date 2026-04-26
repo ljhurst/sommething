@@ -23,7 +23,7 @@ export function EmptySlot({ slotNumber, onClick }: EmptySlotProps) {
         </svg>
       </div>
 
-      <div className="absolute top-1 right-1 bg-gray-200 text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full">
+      <div className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center bg-white text-gray-600 text-[10px] font-semibold rounded-full shadow-sm ring-1 ring-gray-200">
         {slotNumber}
       </div>
     </button>
