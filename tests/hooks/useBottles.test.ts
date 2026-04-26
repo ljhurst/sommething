@@ -3,7 +3,9 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useBottles } from '@/hooks/useBottles';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { WineType } from '@/lib/types';
 import type { BottleInstance, NewBottleInstance } from '@/lib/types';
+import type { User } from '@supabase/supabase-js';
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
@@ -16,7 +18,15 @@ vi.mock('@/contexts/AuthContext', () => ({
 }));
 
 describe('useBottles', () => {
-  const mockUser = { id: 'user-123', email: 'test@example.com' };
+  const mockUser = {
+    id: 'user-123',
+    email: 'test@example.com',
+    aud: 'authenticated',
+    role: 'authenticated',
+    created_at: '2024-01-01T00:00:00Z',
+    app_metadata: {},
+    user_metadata: {},
+  } as User;
   const mockBottles: BottleInstance[] = [
     {
       id: 'bottle-1',
@@ -29,7 +39,7 @@ describe('useBottles', () => {
         created_by_user_id: 'user-123',
         winery: 'Test Winery',
         name: 'Test Wine',
-        type: 'red' as const,
+        type: WineType.RED,
         year: 2020,
         price: 50,
         created_at: '2024-01-01T00:00:00Z',
@@ -71,7 +81,7 @@ describe('useBottles', () => {
       });
 
       mockSelect.mockReturnValue({ order: mockOrder });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const { result } = renderHook(() => useBottles());
 
@@ -122,7 +132,7 @@ describe('useBottles', () => {
       });
 
       mockSelect.mockReturnValue({ order: mockOrder });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const { result } = renderHook(() => useBottles());
 
@@ -153,7 +163,7 @@ describe('useBottles', () => {
 
       mockSelect.mockReturnValue({ eq: mockEq });
       mockEq.mockReturnValue({ order: mockOrder });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       renderHook(() => useBottles('space-123'));
 
@@ -191,7 +201,7 @@ describe('useBottles', () => {
       const mockInsert = vi.fn().mockReturnValue({ select: mockSelect });
       const mockFrom = vi.fn().mockReturnValue({ insert: mockInsert });
 
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const mockOrderSelect = vi.fn().mockReturnThis();
       const mockOrder = vi.fn().mockResolvedValue({ data: [], error: null });
@@ -266,7 +276,7 @@ describe('useBottles', () => {
       });
 
       mockOrderSelect.mockReturnValue({ order: mockOrder });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const { result } = renderHook(() => useBottles());
 
@@ -305,7 +315,7 @@ describe('useBottles', () => {
       const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
       const mockFrom = vi.fn().mockReturnValue({ update: mockUpdate });
 
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const mockSelect = vi.fn().mockReturnThis();
       const mockOrder = vi.fn().mockResolvedValue({ data: mockBottles, error: null });
@@ -349,7 +359,7 @@ describe('useBottles', () => {
       });
 
       mockSelect.mockReturnValue({ order: mockOrder });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const { result } = renderHook(() => useBottles());
 
@@ -382,7 +392,7 @@ describe('useBottles', () => {
       const mockDelete = vi.fn().mockReturnValue({ eq: mockEq });
       const mockFrom = vi.fn().mockReturnValue({ delete: mockDelete });
 
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const mockSelect = vi.fn().mockReturnThis();
       const mockOrder = vi.fn().mockResolvedValue({ data: mockBottles, error: null });
@@ -426,7 +436,7 @@ describe('useBottles', () => {
       });
 
       mockSelect.mockReturnValue({ order: mockOrder });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
       const { result } = renderHook(() => useBottles());
 

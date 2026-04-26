@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import type { NewSpace } from '@/lib/types';
+import { useState, useEffect } from 'react';
+import type { NewSpace, Space } from '@/lib/types';
 
 type CreateSpaceInput = Omit<NewSpace, 'owner_user_id'>;
 
@@ -9,9 +9,17 @@ interface CreateSpaceModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (space: CreateSpaceInput) => Promise<void>;
+  initialData?: Space;
 }
 
-export function CreateSpaceModal({ isOpen, onClose, onSubmit }: CreateSpaceModalProps) {
+export function CreateSpaceModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+}: CreateSpaceModalProps) {
+  const isEditing = !!initialData;
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [spaceType, setSpaceType] = useState<'fridge' | 'cellar' | 'rack'>('fridge');
@@ -19,6 +27,16 @@ export function CreateSpaceModal({ isOpen, onClose, onSubmit }: CreateSpaceModal
   const [columns, setColumns] = useState(4);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name);
+      setDescription(initialData.description || '');
+      setSpaceType(initialData.space_type as 'fridge' | 'cellar' | 'rack');
+      setRows(initialData.rows);
+      setColumns(initialData.columns);
+    }
+  }, [initialData]);
 
   const capacity = rows * columns;
 
@@ -55,14 +73,18 @@ export function CreateSpaceModal({ isOpen, onClose, onSubmit }: CreateSpaceModal
         rows,
         columns,
       });
-      setName('');
-      setDescription('');
-      setSpaceType('fridge');
-      setRows(6);
-      setColumns(4);
+      if (!isEditing) {
+        setName('');
+        setDescription('');
+        setSpaceType('fridge');
+        setRows(6);
+        setColumns(4);
+      }
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create space');
+      setError(
+        err instanceof Error ? err.message : `Failed to ${isEditing ? 'update' : 'create'} space`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +105,9 @@ export function CreateSpaceModal({ isOpen, onClose, onSubmit }: CreateSpaceModal
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Create New Space</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            {isEditing ? 'Edit Space' : 'Create New Space'}
+          </h2>
           <button
             onClick={handleClose}
             disabled={isSubmitting}
@@ -220,7 +244,13 @@ export function CreateSpaceModal({ isOpen, onClose, onSubmit }: CreateSpaceModal
               disabled={isSubmitting}
               className="flex-1 px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors font-medium disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating...' : 'Create Space'}
+              {isSubmitting
+                ? isEditing
+                  ? 'Updating...'
+                  : 'Creating...'
+                : isEditing
+                  ? 'Update Space'
+                  : 'Create Space'}
             </button>
           </div>
         </form>

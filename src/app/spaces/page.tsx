@@ -11,12 +11,26 @@ import type { NewSpace } from '@/lib/types';
 
 export default function SpacesPage() {
   const { user } = useAuth();
-  const { spaces, loading, addSpace } = useSpaces();
+  const { spaces, loading, addSpace, updateSpace, deleteSpace } = useSpaces();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingSpace, setEditingSpace] = useState<string | null>(null);
 
   const handleCreateSpace = async (space: Omit<NewSpace, 'owner_user_id'>) => {
     await addSpace(space as NewSpace);
+  };
+
+  const handleEditSpace = async (spaceId: string, space: Omit<NewSpace, 'owner_user_id'>) => {
+    const success = await updateSpace(spaceId, space);
+    if (success) {
+      setEditingSpace(null);
+    }
+  };
+
+  const handleDeleteSpace = async (spaceId: string, spaceName: string) => {
+    if (confirm(`Are you sure you want to delete "${spaceName}"? This cannot be undone.`)) {
+      await deleteSpace(spaceId);
+    }
   };
 
   return (
@@ -104,10 +118,16 @@ export default function SpacesPage() {
                     </div>
 
                     <div className="mt-6 flex gap-2">
-                      <button className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                      <button
+                        onClick={() => setEditingSpace(space.id)}
+                        className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                      >
                         Edit
                       </button>
-                      <button className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium">
+                      <button
+                        onClick={() => handleDeleteSpace(space.id, space.name)}
+                        className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
+                      >
                         Delete
                       </button>
                     </div>
@@ -123,6 +143,15 @@ export default function SpacesPage() {
           onClose={() => setShowCreateModal(false)}
           onSubmit={handleCreateSpace}
         />
+
+        {editingSpace && (
+          <CreateSpaceModal
+            isOpen={true}
+            onClose={() => setEditingSpace(null)}
+            onSubmit={(space) => handleEditSpace(editingSpace, space)}
+            initialData={spaces.find((s) => s.id === editingSpace)}
+          />
+        )}
       </main>
     </>
   );

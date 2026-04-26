@@ -120,8 +120,14 @@ describe('AuthContext', () => {
       vi.mocked(supabase.auth.onAuthStateChange).mockImplementation((callback) => {
         mockCallback.mockImplementation(callback);
         return {
-          data: { subscription: { unsubscribe: mockUnsubscribe } },
-        } as ReturnType<typeof supabase.auth.onAuthStateChange>;
+          data: {
+            subscription: {
+              id: 'sub-123',
+              callback,
+              unsubscribe: mockUnsubscribe,
+            },
+          },
+        } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>;
       });
 
       const { unmount } = renderHook(() => useAuth(), {
