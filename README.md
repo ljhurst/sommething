@@ -17,11 +17,15 @@ Sommething is a Progressive Web App that helps you manage your wine collection w
 
 ## Features
 
-- **Visual Wine Fridge Grid**: 24-slot grid (4×6) representing your physical fridge
+- **Visual Wine Fridge Grid**: Configurable grid representing your physical fridge (default 4×6 = 24 slots)
+- **Multi-User Authentication**: Secure user accounts with Supabase Auth
+- **Space Collaboration**: Share your fridge with household members (owner/editor/viewer roles)
+- **Wine Database**: Normalized schema - edit wine details once, updates everywhere
 - **Quick Add**: Tap empty slot → add bottle directly to that position
 - **Smart Search**: Filter by type, winery, price, or score
-- **Consumption Tracking**: Mark bottles as consumed, add tasting notes
-- **Analytics Dashboard**: Insights into your collection and drinking patterns
+- **Consumption Tracking**: Mark bottles as consumed, add tasting notes and ratings
+- **Analytics Dashboard**: Insights into your collection and drinking patterns (current + all-time)
+- **Multiple Spaces**: Support for multiple fridges, cellars, or racks per user
 - **Offline Support**: PWA works without internet, syncs when connected
 - **Zero Cost**: Built on free tiers (Vercel + Supabase)
 

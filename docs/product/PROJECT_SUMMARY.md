@@ -8,11 +8,21 @@ A complete, production-ready Progressive Web App for tracking a 24-bottle wine f
 
 ### Core Functionality
 
-- ✅ **Wine Fridge Grid View**: 4×6 responsive grid representing physical fridge slots
-- ✅ **Add Bottles**: Click empty slots to add bottles with full details (winery, name, type, year, price, score)
+- ✅ **Wine Fridge Grid View**: Configurable responsive grid representing physical fridge slots (default 4×6)
+- ✅ **Add Bottles**: Click empty slots to add bottles with full details (winery, name, type, year, price, score, notes)
 - ✅ **View Bottle Details**: Tap bottles to see full information in a modal
+- ✅ **Edit Wine Data**: Update wine vintages once, reflects across all bottle instances and history
 - ✅ **Consume Bottles**: Mark bottles as consumed with optional tasting notes and thumbs up/down rating
-- ✅ **Consumption History**: Tracks all consumed bottles with timestamps
+- ✅ **Consumption History**: Tracks all consumed bottles with timestamps and wine references
+
+### Multi-User & Collaboration
+
+- ✅ **User Authentication**: Secure login with Supabase Auth
+- ✅ **Multiple Spaces**: Support for multiple fridges, cellars, or racks per user
+- ✅ **Configurable Grids**: Define custom row × column dimensions per space
+- ✅ **Space Sharing**: Invite household members to collaborate on shared spaces
+- ✅ **Role-Based Access**: Owner, editor, and viewer permissions
+- ✅ **Private Data**: Row-level security ensures users only see their own spaces
 
 ### User Interface
 
@@ -28,6 +38,7 @@ A complete, production-ready Progressive Web App for tracking a 24-bottle wine f
 - ✅ **Bottles by Type**: Visual breakdown with progress bars
 - ✅ **Top Wineries**: Ranked list with bottle counts and values
 - ✅ **Highlights**: Oldest bottle and most expensive bottle cards
+- ✅ **Time Filters**: View current collection vs all-time (including consumed)
 
 ### Progressive Web App
 
@@ -37,10 +48,12 @@ A complete, production-ready Progressive Web App for tracking a 24-bottle wine f
 
 ### Technical Excellence
 
-- ✅ **Test-Driven Development**: 30 passing tests (100% core logic coverage)
-- ✅ **TypeScript**: Full type safety throughout
-- ✅ **Database Schema**: Normalized PostgreSQL schema with Supabase
+- ✅ **Test-Driven Development**: 38 passing tests (100% core logic coverage)
+- ✅ **TypeScript**: Full type safety throughout with strict mode
+- ✅ **Normalized Database**: Proper relational schema (wines, spaces, bottle_instances, consumptions)
+- ✅ **Row-Level Security**: Secure multi-user access with Supabase RLS policies
 - ✅ **Performance**: Optimized with Next.js 16.2 and Turbopack
+- ✅ **Zero Linting Errors**: Clean, maintainable codebase
 
 ## 📁 Project Structure
 
@@ -62,7 +75,9 @@ sommething/
 │   │   ├── AddBottleModal.tsx      # Add/edit bottle form
 │   │   └── BottleDetailModal.tsx   # Bottle details with consume
 │   ├── hooks/
-│   │   ├── useBottles.ts           # Bottle CRUD operations
+│   │   ├── useBottles.ts           # Bottle instance operations (space-specific)
+│   │   ├── useWines.ts             # Wine vintage CRUD
+│   │   ├── useSpaces.ts            # Space management + collaboration
 │   │   └── useConsumption.ts       # Consumption tracking
 │   └── lib/
 │       ├── types.ts                # TypeScript types & enums
@@ -95,14 +110,15 @@ sommething/
 
 ## 🧪 Test Coverage
 
-**30 tests passing** across:
+**38 tests passing** across:
 
-- Type definitions (4 tests)
-- Utility functions (10 tests)
-- Analytics calculations (9 tests)
-- React components (7 tests)
+- Type definitions (6 tests)
+- Utility functions (12 tests)
+- Analytics calculations (12 tests)
+- React components (8 tests)
 
 Run tests: `npm test`
+Run full validation: `npm run validate`
 
 ## 🎨 Design System
 
@@ -126,36 +142,56 @@ Run tests: `npm test`
 - Smooth transitions (200ms)
 - Focus rings for accessibility
 
-## 🗄️ Database Schema
+## 🗄️ Database Schema (Normalized)
 
 ### Tables
 
-**bottles**
+**wines** - Canonical wine vintage metadata
 
-- Stores active bottles in the fridge
-- Unique slot positions (1-24)
-- Full wine details (winery, name, type, year, price, score, notes, rating)
+- Winery, name, type, year, price, score, notes
+- Created by user, can be shared across spaces
+- Editable (updates reflect everywhere)
 
-**consumption_history**
+**spaces** - Storage locations (fridges, cellars, racks)
 
-- Records consumed bottles
-- Foreign key to bottles (with cascade delete)
-- Optional tasting notes and rating
-- Timestamp of consumption
+- Owner, name, description
+- Configurable dimensions (rows × columns)
+- Space type (fridge, cellar, rack)
+
+**space_members** - Collaboration and sharing
+
+- User access to spaces
+- Roles: owner, editor, viewer
+- Enables household sharing
+
+**bottle_instances** - Physical bottles in spaces
+
+- References wine (not duplicating data)
+- Space and slot position
+- When consumed, deleted and logged to consumptions
+
+**consumptions** - Historical consumption records
+
+- References wine (not duplicating data)
+- Who consumed, when, from which space
+- Optional notes and rating
 
 ### Enums
 
 - `wine_type`: red, white, rose, sparkling, dessert, other
 - `rating_type`: thumbs_up, thumbs_down
 
+**See**: `docs/database/SCHEMA.md` for complete schema documentation
+
 ## 📊 Key Metrics
 
-- **Lines of Code**: ~2,500 (excluding tests)
-- **Components**: 11 React components
-- **Hooks**: 2 custom hooks
-- **Test Files**: 5 test suites
-- **Database Tables**: 2 tables
-- **API Calls**: Zero-cost Supabase REST API
+- **Lines of Code**: ~3,500 (excluding tests)
+- **Components**: 12 React components
+- **Hooks**: 4 custom hooks (useBottles, useWines, useSpaces, useConsumption)
+- **Test Files**: 5 test suites (38 tests)
+- **Database Tables**: 5 normalized tables + auth
+- **Migrations**: 10 database migrations (clean migration path)
+- **API Calls**: Zero-cost Supabase REST API with RLS
 
 ## 🚀 Deployment Ready
 
@@ -204,14 +240,17 @@ Run tests: `npm test`
 
 Ideas for future development:
 
+- Email invites for space collaboration
+- Wine deduplication UI (merge duplicate wine entries)
+- Space switcher UI (for users with multiple spaces)
+- Move bottles between spaces
 - Camera scanning for wine labels (OCR)
 - Smart recommendations based on occasion
 - Food pairing suggestions
 - Aging tracker with optimal drinking windows
-- Multi-user authentication
-- Larger collection support (multiple fridges)
 - Export/import data (CSV/JSON)
 - Wine shop price tracking
+- Public wine database (community-sourced)
 
 ## 📚 Documentation
 
