@@ -4,8 +4,8 @@
 
 1. Create a new Supabase project at [supabase.com](https://supabase.com)
 2. Go to SQL Editor in your Supabase dashboard
-3. Copy and paste the contents of `migrations/001_initial_schema.sql`
-4. Run the migration
+3. Run migrations in order (see below)
+4. Enable authentication (see Authentication Setup below)
 5. Copy your project URL and anon key from Settings > API
 6. Create `.env.local` in the project root:
 
@@ -40,14 +40,35 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 Migrations are stored in `migrations/` directory and should be run in order:
 
 1. `001_initial_schema.sql` - Initial database setup
+2. `002_update_to_24_bottles.sql` - Update to 24-bottle capacity
+3. `003_make_price_optional.sql` - Make price field optional
+4. `004_make_consumption_price_optional.sql` - Make consumption price optional
+5. `005_add_user_auth.sql` - Add user authentication (user_id columns and RLS policies)
+
+**To run migrations**: Go to SQL Editor in Supabase dashboard, copy/paste each migration file, and run in order.
+
+## Authentication Setup
+
+Authentication is **required** as of migration `005_add_user_auth.sql`.
+
+### Enable Auth in Supabase Dashboard
+
+1. Go to **Authentication** → **Providers**
+2. Enable **Email** provider
+3. Configure Site URL and Redirect URLs
+4. Run `005_add_user_auth.sql` migration
+
+**See detailed setup guide**: [`docs/setup/SUPABASE_AUTH_SETUP.md`](../../docs/setup/SUPABASE_AUTH_SETUP.md)
 
 ## Row Level Security (RLS)
 
-Currently configured for public access (no authentication required). To add authentication later:
+RLS policies enforce user data isolation:
 
-1. Enable Supabase Auth
-2. Update RLS policies to check `auth.uid()`
-3. Add user_id column to bottles table
+- Users can only see and modify their own bottles
+- Users can only see their own consumption history
+- Policies automatically filter by `auth.uid()`
+
+**Note**: If you need to temporarily disable RLS for testing, you can do so in Supabase Dashboard under **Database** → **Tables** → Select table → **RLS is enabled** toggle (not recommended for production).
 
 ## Sample Data (Optional)
 

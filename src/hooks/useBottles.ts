@@ -1,20 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Bottle, NewBottle, UpdateBottle } from '@/lib/types';
 
 export function useBottles() {
+  const { user } = useAuth();
   const [bottles, setBottles] = useState<Bottle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchBottles = async () => {
+  const fetchBottles = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
+      if (!user) {
+        setBottles([]);
+        setLoading(false);
+        return;
+      }
+
       const { data, error: fetchError } = await supabase
         .from('bottles')
         .select('*')
+        .eq('user_id', user.id)
         .order('slot_position', { ascending: true });
 
       if (fetchError) throw fetchError;
@@ -24,13 +33,18 @@ export function useBottles() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   const addBottle = async (bottle: NewBottle): Promise<Bottle | null> => {
     try {
+      if (!user) {
+        setError('You must be logged in to add bottles');
+        return null;
+      }
+
       const { data, error: insertError } = await supabase
         .from('bottles')
-        .insert(bottle)
+        .insert({ ...bottle, user_id: user.id })
         .select()
         .single();
 
@@ -82,7 +96,7 @@ export function useBottles() {
 
   useEffect(() => {
     fetchBottles();
-  }, []);
+  }, [fetchBottles]);
 
   return {
     bottles,

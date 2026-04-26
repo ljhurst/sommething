@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import type { ConsumptionHistory, Rating, Bottle } from '@/lib/types';
 
 interface ConsumeBottleParams {
@@ -9,6 +10,7 @@ interface ConsumeBottleParams {
 }
 
 export function useConsumption() {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,8 +19,14 @@ export function useConsumption() {
       setLoading(true);
       setError(null);
 
+      if (!user) {
+        setError('You must be logged in to consume bottles');
+        return false;
+      }
+
       const { error: insertError } = await supabase.from('consumption_history').insert({
         bottle_id: params.bottle.id,
+        user_id: user.id,
         winery: params.bottle.winery,
         name: params.bottle.name,
         type: params.bottle.type,
@@ -53,9 +61,14 @@ export function useConsumption() {
       setLoading(true);
       setError(null);
 
+      if (!user) {
+        return [];
+      }
+
       const { data, error: fetchError } = await supabase
         .from('consumption_history')
         .select('*')
+        .eq('user_id', user.id)
         .order('consumed_at', { ascending: false });
 
       if (fetchError) throw fetchError;
