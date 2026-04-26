@@ -8,6 +8,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
+    onConsoleLog(log: string) {
+      if (log.includes('Not implemented: HTMLFormElement.prototype.requestSubmit')) return false;
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
