@@ -52,7 +52,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: AuthProvider,
@@ -73,7 +73,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: AuthProvider,
@@ -95,7 +95,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: AuthProvider,
@@ -147,7 +147,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
       vi.mocked(supabase.auth.signUp).mockResolvedValue({
         data: { user: mockUser, session: mockSession },
         error: null,
@@ -184,7 +184,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
       vi.mocked(supabase.auth.signUp).mockResolvedValue({
         data: { user: null, session: null },
         error: mockError,
@@ -213,7 +213,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: mockUser, session: mockSession },
         error: null,
@@ -250,7 +250,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: null, session: null },
         error: mockError,
@@ -279,7 +279,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
       vi.mocked(supabase.auth.signOut).mockResolvedValue({ error: null });
 
       const { result } = renderHook(() => useAuth(), {
@@ -313,7 +313,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
 
       const { result } = renderHook(() => useUser(), {
         wrapper: AuthProvider,
@@ -332,7 +332,7 @@ describe('AuthContext', () => {
       });
       vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
         data: { subscription: { unsubscribe: mockUnsubscribe } },
-      } as ReturnType<typeof supabase.auth.onAuthStateChange>);
+      } as unknown as ReturnType<typeof supabase.auth.onAuthStateChange>);
 
       const { result } = renderHook(() => useUser(), {
         wrapper: AuthProvider,

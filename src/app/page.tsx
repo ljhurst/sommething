@@ -114,7 +114,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <Header
             onMenuClick={() => setSidebarOpen(true)}
-            showSpaceSwitcher={user && spaces.length > 0}
+            showSpaceSwitcher={!!(user && spaces.length > 0)}
             spaceSwitcher={
               <SpaceSwitcher
                 spaces={spaces}
