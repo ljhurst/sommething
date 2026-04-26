@@ -1,16 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { WineType, type NewBottle } from '@/lib/types';
+import { WineType, type NewWine } from '@/lib/types';
 
 interface AddBottleModalProps {
   isOpen: boolean;
   slotNumber: number;
+  spaceId: string;
   onClose: () => void;
-  onSubmit: (bottle: NewBottle) => Promise<void>;
+  onSubmit: (wine: NewWine, slotPosition: number) => Promise<void>;
 }
 
-export function AddBottleModal({ isOpen, slotNumber, onClose, onSubmit }: AddBottleModalProps) {
+export function AddBottleModal({
+  isOpen,
+  slotNumber,
+  spaceId: _spaceId,
+  onClose,
+  onSubmit,
+}: AddBottleModalProps) {
   const [formData, setFormData] = useState({
     winery: '',
     name: '',
@@ -18,6 +25,7 @@ export function AddBottleModal({ isOpen, slotNumber, onClose, onSubmit }: AddBot
     year: new Date().getFullYear(),
     price: '',
     score: '',
+    notes: '',
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -39,17 +47,18 @@ export function AddBottleModal({ isOpen, slotNumber, onClose, onSubmit }: AddBot
     setSubmitting(true);
 
     try {
-      const bottle: NewBottle = {
+      const wine: NewWine = {
         winery: formData.winery,
         name: formData.name,
         type: formData.type,
         year: formData.year,
         price: formData.price ? parseFloat(formData.price) : undefined,
         score: formData.score ? parseInt(formData.score) : undefined,
-        slot_position: slotNumber,
+        notes: formData.notes || undefined,
+        created_by_user_id: '',
       };
 
-      await onSubmit(bottle);
+      await onSubmit(wine, slotNumber);
 
       setFormData({
         winery: '',
@@ -58,6 +67,7 @@ export function AddBottleModal({ isOpen, slotNumber, onClose, onSubmit }: AddBot
         year: new Date().getFullYear(),
         price: '',
         score: '',
+        notes: '',
       });
       onClose();
     } catch (error) {
@@ -195,6 +205,20 @@ export function AddBottleModal({ isOpen, slotNumber, onClose, onSubmit }: AddBot
               onChange={(e) => setFormData({ ...formData, score: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
               placeholder="Optional"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+              Notes
+            </label>
+            <textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
+              placeholder="Optional tasting notes or purchase details"
             />
           </div>
 

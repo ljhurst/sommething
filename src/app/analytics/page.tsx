@@ -26,11 +26,33 @@ export default function AnalyticsPage() {
   }, [showConsumed, consumedBottles.length, getConsumptionHistory]);
 
   useEffect(() => {
-    const bottleData: BottleData[] = showConsumed ? [...bottles, ...consumedBottles] : bottles;
+    const currentBottlesData: BottleData[] = bottles
+      .filter((b) => b.wine)
+      .map((b) => ({
+        winery: b.wine!.winery,
+        name: b.wine!.name,
+        type: b.wine!.type,
+        year: b.wine!.year,
+        price: b.wine!.price,
+        score: b.wine!.score,
+      }));
 
-    if (bottleData.length > 0) {
-      setAnalytics(calculateAnalytics(bottleData));
-    }
+    const consumedBottlesData: BottleData[] = consumedBottles
+      .filter((c) => c.wine)
+      .map((c) => ({
+        winery: c.wine!.winery,
+        name: c.wine!.name,
+        type: c.wine!.type,
+        year: c.wine!.year,
+        price: c.wine!.price,
+        score: c.wine!.score,
+      }));
+
+    const bottleData: BottleData[] = showConsumed
+      ? [...currentBottlesData, ...consumedBottlesData]
+      : currentBottlesData;
+
+    setAnalytics(calculateAnalytics(bottleData));
   }, [bottles, consumedBottles, showConsumed]);
 
   if (loading) {

@@ -12,8 +12,9 @@ export enum Rating {
   THUMBS_DOWN = 'thumbs_down',
 }
 
-export interface Bottle {
+export interface Wine {
   id: string;
+  created_by_user_id: string;
   winery: string;
   name: string;
   type: WineType;
@@ -21,24 +22,63 @@ export interface Bottle {
   price?: number;
   score?: number;
   notes?: string;
-  rating?: Rating;
-  slot_position: number;
   created_at: string;
+  updated_at: string;
 }
 
-export type BottleData = Pick<Bottle, 'winery' | 'name' | 'type' | 'year' | 'price' | 'score'>;
-
-export interface ConsumptionHistory extends BottleData {
+export interface Space {
   id: string;
-  bottle_id: string;
+  owner_user_id: string;
+  name: string;
+  description?: string;
+  rows: number;
+  columns: number;
+  space_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SpaceMember {
+  id: string;
+  space_id: string;
+  user_id: string;
+  role: 'owner' | 'editor' | 'viewer';
+  joined_at: string;
+}
+
+export interface BottleInstance {
+  id: string;
+  wine_id: string;
+  space_id: string;
+  slot_position: number;
+  added_at: string;
+  wine?: Wine;
+}
+
+export interface Consumption {
+  id: string;
+  wine_id: string;
+  consumed_by_user_id: string;
+  space_id: string;
   consumed_at: string;
-  consumption_notes?: string;
-  consumption_rating?: Rating;
+  notes?: string;
+  rating?: Rating;
+  wine?: Wine;
 }
 
-export interface BottleWithHistory extends Bottle {
-  consumption_history?: ConsumptionHistory[];
-}
+export type NewWine = Omit<Wine, 'id' | 'created_at' | 'updated_at'>;
+export type UpdateWine = Partial<NewWine>;
 
-export type NewBottle = Omit<Bottle, 'id' | 'created_at'>;
-export type UpdateBottle = Partial<NewBottle>;
+export type NewSpace = Omit<Space, 'id' | 'created_at' | 'updated_at'>;
+export type UpdateSpace = Partial<NewSpace>;
+
+export type NewBottleInstance = Omit<BottleInstance, 'id' | 'added_at' | 'wine'>;
+export type UpdateBottleInstance = Partial<NewBottleInstance>;
+
+export type NewConsumption = Omit<Consumption, 'id' | 'consumed_at' | 'wine'>;
+
+export type Bottle = BottleInstance;
+export type BottleData = Pick<Wine, 'winery' | 'name' | 'type' | 'year' | 'price' | 'score'>;
+export type ConsumptionHistory = Consumption;
+export type NewBottle = NewBottleInstance;
+export type UpdateBottle = UpdateBottleInstance;

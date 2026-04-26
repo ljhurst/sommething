@@ -4,11 +4,11 @@ import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { Bottle3D } from './Bottle3D';
-import type { Bottle } from '@/lib/types';
+import type { BottleInstance } from '@/lib/types';
 
 interface WineFridge3DProps {
-  bottles: Bottle[];
-  onBottleClick: (bottle: Bottle) => void;
+  bottles: BottleInstance[];
+  onBottleClick: (bottle: BottleInstance) => void;
 }
 
 export function WineFridge3D({ bottles, onBottleClick }: WineFridge3DProps) {

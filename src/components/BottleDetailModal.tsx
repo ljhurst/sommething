@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { formatPrice, getWineColor } from '@/lib/utils';
-import { Rating, type Bottle } from '@/lib/types';
+import { Rating, type BottleInstance } from '@/lib/types';
 
 interface BottleDetailModalProps {
   isOpen: boolean;
-  bottle: Bottle | null;
+  bottle: BottleInstance | null;
   onClose: () => void;
   onConsume: (bottleId: string, notes?: string, rating?: Rating) => Promise<void>;
   onNavigate?: (direction: 'prev' | 'next') => void;
@@ -35,7 +35,9 @@ export function BottleDetailModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, submitting, onClose]);
 
-  if (!isOpen || !bottle) return null;
+  if (!isOpen || !bottle || !bottle.wine) return null;
+
+  const wine = bottle.wine;
 
   const handleConsume = async () => {
     setSubmitting(true);
@@ -52,7 +54,7 @@ export function BottleDetailModal({
     }
   };
 
-  const color = getWineColor(bottle.type);
+  const color = getWineColor(wine.type);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget && !submitting) {
@@ -91,28 +93,28 @@ export function BottleDetailModal({
               style={{ backgroundColor: color }}
             />
             <div className="flex-1">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">{bottle.name}</h3>
-              <p className="text-lg text-gray-600">{bottle.winery}</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">{wine.name}</h3>
+              <p className="text-lg text-gray-600">{wine.winery}</p>
             </div>
           </div>
 
           <div className="space-y-3 mb-6">
             <div className="flex justify-between py-2 border-b">
               <span className="text-gray-600">Type</span>
-              <span className="font-medium text-gray-900 capitalize">{bottle.type}</span>
+              <span className="font-medium text-gray-900 capitalize">{wine.type}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
               <span className="text-gray-600">Year</span>
-              <span className="font-medium text-gray-900">{bottle.year}</span>
+              <span className="font-medium text-gray-900">{wine.year}</span>
             </div>
             <div className="flex justify-between py-2 border-b">
               <span className="text-gray-600">Price</span>
-              <span className="font-medium text-gray-900">{formatPrice(bottle.price)}</span>
+              <span className="font-medium text-gray-900">{formatPrice(wine.price)}</span>
             </div>
-            {bottle.score && (
+            {wine.score && (
               <div className="flex justify-between py-2 border-b">
                 <span className="text-gray-600">Score</span>
-                <span className="font-medium text-gray-900">{bottle.score}/100</span>
+                <span className="font-medium text-gray-900">{wine.score}/100</span>
               </div>
             )}
             <div className="flex justify-between py-2 border-b">
@@ -121,10 +123,10 @@ export function BottleDetailModal({
             </div>
           </div>
 
-          {bottle.notes && (
+          {wine.notes && (
             <div className="mb-6">
               <h4 className="text-sm font-medium text-gray-700 mb-2">Notes</h4>
-              <p className="text-gray-600">{bottle.notes}</p>
+              <p className="text-gray-600">{wine.notes}</p>
             </div>
           )}
 

@@ -17,11 +17,15 @@ Sommething is a Progressive Web App that helps you manage your wine collection w
 
 ## Features
 
-- **Visual Wine Fridge Grid**: 24-slot grid (4×6) representing your physical fridge
+- **Visual Wine Fridge Grid**: Configurable grid representing your physical fridge (default 4×6 = 24 slots)
+- **Multi-User Authentication**: Secure user accounts with Supabase Auth
+- **Space Collaboration**: Share your fridge with household members (owner/editor/viewer roles)
+- **Wine Database**: Normalized schema - edit wine details once, updates everywhere
 - **Quick Add**: Tap empty slot → add bottle directly to that position
 - **Smart Search**: Filter by type, winery, price, or score
-- **Consumption Tracking**: Mark bottles as consumed, add tasting notes
-- **Analytics Dashboard**: Insights into your collection and drinking patterns
+- **Consumption Tracking**: Mark bottles as consumed, add tasting notes and ratings
+- **Analytics Dashboard**: Insights into your collection and drinking patterns (current + all-time)
+- **Multiple Spaces**: Support for multiple fridges, cellars, or racks per user
 - **Offline Support**: PWA works without internet, syncs when connected
 - **Zero Cost**: Built on free tiers (Vercel + Supabase)
 
@@ -109,20 +113,30 @@ See [CI/CD Documentation](.github/workflows/README.md) for all available command
 ```
 src/
 ├── app/                    # Next.js App Router pages
+│   ├── page.tsx           # Main wine fridge view
+│   └── analytics/         # Analytics dashboard
 ├── components/             # React components
 │   ├── WineFridgeGrid.tsx # Main grid container
 │   ├── BottleSlot.tsx     # Individual bottle slot
-│   ├── BottleCircle.tsx   # Mobile bottle view
-│   └── Bottle3D.tsx       # Desktop 3D bottle
+│   ├── BottleCircle.tsx   # Mobile bottle view (2D)
+│   ├── Bottle3D.tsx       # Desktop 3D bottle
+│   ├── WineFridge3D.tsx   # 3D fridge view
+│   ├── AddBottleModal.tsx # Add wine + bottle form
+│   ├── BottleDetailModal.tsx # Bottle details + consume
+│   └── AuthModal.tsx      # Authentication
 ├── lib/                    # Utilities and helpers
 │   ├── supabase.ts        # Database client
-│   ├── types.ts           # TypeScript types
-│   └── utils.ts           # Helper functions
+│   ├── types.ts           # TypeScript types (normalized schema)
+│   ├── utils.ts           # Helper functions
+│   └── analytics.ts       # Analytics calculations
 └── hooks/                  # Custom React hooks
-    ├── useBottles.ts      # Bottle data management
+    ├── useBottles.ts      # Bottle instance management (space-specific)
+    ├── useWines.ts        # Wine vintage CRUD operations
+    ├── useSpaces.ts       # Space management + collaboration
     └── useConsumption.ts  # Consumption tracking
 
 tests/                      # Test files (mirrors src/)
+supabase/migrations/        # Database migrations
 ```
 
 ## Testing

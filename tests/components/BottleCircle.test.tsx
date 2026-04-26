@@ -1,18 +1,28 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { BottleCircle } from '@/components/BottleCircle';
-import { WineType, type Bottle } from '@/lib/types';
+import { WineType, type BottleInstance, type Wine } from '@/lib/types';
 
 describe('BottleCircle', () => {
-  const mockBottle: Bottle = {
-    id: '1',
+  const mockWine: Wine = {
+    id: 'wine-1',
+    created_by_user_id: 'user-1',
     winery: 'Test Winery',
     name: 'Test Wine',
     type: WineType.RED,
     year: 2020,
     price: 25.0,
-    slot_position: 5,
     created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+  const mockBottle: BottleInstance = {
+    id: '1',
+    wine_id: 'wine-1',
+    space_id: 'space-1',
+    slot_position: 5,
+    added_at: new Date().toISOString(),
+    wine: mockWine,
   };
 
   it('should render bottle with winery name', () => {

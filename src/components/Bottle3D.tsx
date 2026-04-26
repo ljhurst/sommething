@@ -5,23 +5,27 @@ import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { Mesh } from 'three';
 import { getWineColor } from '@/lib/utils';
-import type { Bottle } from '@/lib/types';
+import type { BottleInstance } from '@/lib/types';
 
 interface Bottle3DProps {
-  bottle: Bottle;
+  bottle: BottleInstance;
   position: [number, number, number];
   onClick: () => void;
 }
 
 export function Bottle3D({ bottle, position, onClick }: Bottle3DProps) {
   const meshRef = useRef<Mesh>(null);
-  const color = getWineColor(bottle.type);
 
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.05;
     }
   });
+
+  const wine = bottle.wine;
+  if (!wine) return null;
+
+  const color = getWineColor(wine.type);
 
   return (
     <group position={position} onClick={onClick}>
@@ -48,7 +52,7 @@ export function Bottle3D({ bottle, position, onClick }: Bottle3DProps) {
         anchorY="middle"
         maxWidth={0.25}
       >
-        {bottle.winery}
+        {wine.winery}
       </Text>
     </group>
   );

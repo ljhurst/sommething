@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getWineColor, formatPrice, getAvailableSlots, isSlotOccupied } from '@/lib/utils';
-import { WineType, type Bottle } from '@/lib/types';
+import { WineType, type BottleInstance } from '@/lib/types';
 
 describe('Wine Utilities', () => {
   describe('getWineColor', () => {
@@ -37,7 +37,7 @@ describe('Wine Utilities', () => {
     });
 
     it('should handle null price', () => {
-      expect(formatPrice(null as any)).toBe('N/A');
+      expect(formatPrice(null as unknown as undefined)).toBe('N/A');
     });
   });
 
@@ -50,26 +50,20 @@ describe('Wine Utilities', () => {
     });
 
     it('should return only unoccupied slots', () => {
-      const bottles: Bottle[] = [
+      const bottles: BottleInstance[] = [
         {
           id: '1',
-          winery: 'Test',
-          name: 'Wine 1',
-          type: WineType.RED,
-          year: 2020,
-          price: 20,
+          wine_id: 'wine-1',
+          space_id: 'space-1',
           slot_position: 1,
-          created_at: new Date().toISOString(),
+          added_at: new Date().toISOString(),
         },
         {
           id: '2',
-          winery: 'Test',
-          name: 'Wine 2',
-          type: WineType.WHITE,
-          year: 2021,
-          price: 25,
+          wine_id: 'wine-2',
+          space_id: 'space-1',
           slot_position: 5,
-          created_at: new Date().toISOString(),
+          added_at: new Date().toISOString(),
         },
       ];
 
@@ -83,16 +77,13 @@ describe('Wine Utilities', () => {
   });
 
   describe('isSlotOccupied', () => {
-    const bottles: Bottle[] = [
+    const bottles: BottleInstance[] = [
       {
         id: '1',
-        winery: 'Test',
-        name: 'Wine 1',
-        type: WineType.RED,
-        year: 2020,
-        price: 20,
+        wine_id: 'wine-1',
+        space_id: 'space-1',
         slot_position: 5,
-        created_at: new Date().toISOString(),
+        added_at: new Date().toISOString(),
       },
     ];
 

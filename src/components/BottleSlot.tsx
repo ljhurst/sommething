@@ -2,12 +2,12 @@
 
 import { BottleCircle } from './BottleCircle';
 import { EmptySlot } from './EmptySlot';
-import type { Bottle } from '@/lib/types';
+import type { BottleInstance } from '@/lib/types';
 
 interface BottleSlotProps {
   slotNumber: number;
-  bottle?: Bottle;
-  onBottleClick: (bottle: Bottle) => void;
+  bottle?: BottleInstance;
+  onBottleClick: (bottle: BottleInstance) => void;
   onEmptySlotClick: (slotNumber: number) => void;
 }
 

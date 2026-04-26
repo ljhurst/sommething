@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Bottle, NewBottle, UpdateBottle } from '@/lib/types';
+import type { BottleInstance, NewBottleInstance, UpdateBottleInstance } from '@/lib/types';
 
-export function useBottles() {
+export function useBottles(spaceId?: string) {
   const { user } = useAuth();
-  const [bottles, setBottles] = useState<Bottle[]>([]);
+  const [bottles, setBottles] = useState<BottleInstance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,11 +20,16 @@ export function useBottles() {
         return;
       }
 
-      const { data, error: fetchError } = await supabase
-        .from('bottles')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('slot_position', { ascending: true });
+      let query = supabase.from('bottle_instances').select(`
+          *,
+          wine:wines(*)
+        `);
+
+      if (spaceId) {
+        query = query.eq('space_id', spaceId);
+      }
+
+      const { data, error: fetchError } = await query.order('slot_position', { ascending: true });
 
       if (fetchError) throw fetchError;
       setBottles(data || []);
@@ -33,9 +38,9 @@ export function useBottles() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, spaceId]);
 
-  const addBottle = async (bottle: NewBottle): Promise<Bottle | null> => {
+  const addBottle = async (bottle: NewBottleInstance): Promise<BottleInstance | null> => {
     try {
       if (!user) {
         setError('You must be logged in to add bottles');
@@ -43,9 +48,14 @@ export function useBottles() {
       }
 
       const { data, error: insertError } = await supabase
-        .from('bottles')
-        .insert({ ...bottle, user_id: user.id })
-        .select()
+        .from('bottle_instances')
+        .insert(bottle)
+        .select(
+          `
+          *,
+          wine:wines(*)
+        `
+        )
         .single();
 
       if (insertError) throw insertError;
@@ -61,9 +71,12 @@ export function useBottles() {
     }
   };
 
-  const updateBottle = async (id: string, updates: UpdateBottle): Promise<boolean> => {
+  const updateBottle = async (id: string, updates: UpdateBottleInstance): Promise<boolean> => {
     try {
-      const { error: updateError } = await supabase.from('bottles').update(updates).eq('id', id);
+      const { error: updateError } = await supabase
+        .from('bottle_instances')
+        .update(updates)
+        .eq('id', id);
 
       if (updateError) throw updateError;
 
@@ -82,7 +95,7 @@ export function useBottles() {
 
   const deleteBottle = async (id: string): Promise<boolean> => {
     try {
-      const { error: deleteError } = await supabase.from('bottles').delete().eq('id', id);
+      const { error: deleteError } = await supabase.from('bottle_instances').delete().eq('id', id);
 
       if (deleteError) throw deleteError;
 
