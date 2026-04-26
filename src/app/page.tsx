@@ -8,9 +8,11 @@ import { AddBottleModal } from '@/components/AddBottleModal';
 import { BottleDetailModal } from '@/components/BottleDetailModal';
 import { AuthModal } from '@/components/AuthModal';
 import { useBottles } from '@/hooks/useBottles';
+import { useWines } from '@/hooks/useWines';
+import { useSpaces } from '@/hooks/useSpaces';
 import { useConsumption } from '@/hooks/useConsumption';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Bottle, NewBottle, Rating } from '@/lib/types';
+import type { BottleInstance, NewWine, Rating } from '@/lib/types';
 
 const WineFridge3D = dynamic(
   () => import('@/components/WineFridge3D').then((mod) => ({ default: mod.WineFridge3D })),
@@ -19,10 +21,13 @@ const WineFridge3D = dynamic(
 
 export default function Home() {
   const { user, loading: authLoading, signOut } = useAuth();
-  const { bottles, loading, error, addBottle, refetch } = useBottles();
+  const { spaces, loading: spacesLoading } = useSpaces();
+  const currentSpace = spaces[0];
+  const { bottles, loading, error, addBottle, refetch } = useBottles(currentSpace?.id);
+  const { addWine } = useWines();
   const { consumeBottle } = useConsumption();
 
-  const [selectedBottle, setSelectedBottle] = useState<Bottle | null>(null);
+  const [selectedBottle, setSelectedBottle] = useState<BottleInstance | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -48,13 +53,22 @@ export default function Home() {
     setShowAddModal(true);
   };
 
-  const handleBottleClick = (bottle: Bottle) => {
+  const handleBottleClick = (bottle: BottleInstance) => {
     setSelectedBottle(bottle);
     setShowDetailModal(true);
   };
 
-  const handleAddBottle = async (bottle: NewBottle) => {
-    await addBottle(bottle);
+  const handleAddBottle = async (wine: NewWine, slotPosition: number) => {
+    if (!currentSpace) return;
+
+    const createdWine = await addWine(wine);
+    if (createdWine) {
+      await addBottle({
+        wine_id: createdWine.id,
+        space_id: currentSpace.id,
+        slot_position: slotPosition,
+      });
+    }
   };
 
   const handleConsumeBottle = async (bottleId: string, notes?: string, rating?: Rating) => {
@@ -131,7 +145,7 @@ export default function Home() {
           </div>
         )}
 
-        {authLoading || loading ? (
+        {authLoading || loading || spacesLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-wine-red mx-auto mb-4"></div>
@@ -164,15 +178,18 @@ export default function Home() {
         )}
       </div>
 
-      <AddBottleModal
-        isOpen={showAddModal}
-        slotNumber={selectedSlot || 1}
-        onClose={() => {
-          setShowAddModal(false);
-          setSelectedSlot(null);
-        }}
-        onSubmit={handleAddBottle}
-      />
+      {currentSpace && (
+        <AddBottleModal
+          isOpen={showAddModal}
+          slotNumber={selectedSlot || 1}
+          spaceId={currentSpace.id}
+          onClose={() => {
+            setShowAddModal(false);
+            setSelectedSlot(null);
+          }}
+          onSubmit={handleAddBottle}
+        />
+      )}
 
       <BottleDetailModal
         isOpen={showDetailModal}

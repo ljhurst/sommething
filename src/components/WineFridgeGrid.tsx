@@ -2,11 +2,11 @@
 
 import { BottleSlot } from './BottleSlot';
 import { getBottleAtSlot } from '@/lib/utils';
-import type { Bottle } from '@/lib/types';
+import type { BottleInstance } from '@/lib/types';
 
 interface WineFridgeGridProps {
-  bottles: Bottle[];
-  onBottleClick: (bottle: Bottle) => void;
+  bottles: BottleInstance[];
+  onBottleClick: (bottle: BottleInstance) => void;
   onEmptySlotClick: (slotNumber: number) => void;
 }
 

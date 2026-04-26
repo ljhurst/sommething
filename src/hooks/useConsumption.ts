@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import type { ConsumptionHistory, Rating, Bottle } from '@/lib/types';
+import type { Consumption, Rating, BottleInstance, NewConsumption } from '@/lib/types';
 
 interface ConsumeBottleParams {
-  bottle: Bottle;
+  bottle: BottleInstance;
   notes?: string;
   rating?: Rating;
 }
@@ -24,24 +24,25 @@ export function useConsumption() {
         return false;
       }
 
-      const { error: insertError } = await supabase.from('consumption_history').insert({
-        bottle_id: params.bottle.id,
-        user_id: user.id,
-        winery: params.bottle.winery,
-        name: params.bottle.name,
-        type: params.bottle.type,
-        year: params.bottle.year,
-        price: params.bottle.price ?? null,
-        score: params.bottle.score ?? null,
-        consumption_notes: params.notes ?? null,
-        consumption_rating: params.rating ?? null,
-        consumed_at: new Date().toISOString(),
-      });
+      if (!params.bottle.wine_id || !params.bottle.space_id) {
+        setError('Invalid bottle data');
+        return false;
+      }
+
+      const consumptionData: NewConsumption = {
+        wine_id: params.bottle.wine_id,
+        consumed_by_user_id: user.id,
+        space_id: params.bottle.space_id,
+        notes: params.notes,
+        rating: params.rating,
+      };
+
+      const { error: insertError } = await supabase.from('consumptions').insert(consumptionData);
 
       if (insertError) throw insertError;
 
       const { error: deleteError } = await supabase
-        .from('bottles')
+        .from('bottle_instances')
         .delete()
         .eq('id', params.bottle.id);
 
@@ -56,7 +57,7 @@ export function useConsumption() {
     }
   };
 
-  const getConsumptionHistory = async (): Promise<ConsumptionHistory[]> => {
+  const getConsumptionHistory = async (spaceId?: string): Promise<Consumption[]> => {
     try {
       setLoading(true);
       setError(null);
@@ -65,11 +66,21 @@ export function useConsumption() {
         return [];
       }
 
-      const { data, error: fetchError } = await supabase
-        .from('consumption_history')
-        .select('*')
-        .eq('user_id', user.id)
+      let query = supabase
+        .from('consumptions')
+        .select(
+          `
+          *,
+          wine:wines(*)
+        `
+        )
         .order('consumed_at', { ascending: false });
+
+      if (spaceId) {
+        query = query.eq('space_id', spaceId);
+      }
+
+      const { data, error: fetchError } = await query;
 
       if (fetchError) throw fetchError;
       return data || [];

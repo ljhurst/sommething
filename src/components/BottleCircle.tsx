@@ -1,29 +1,32 @@
 'use client';
 
 import { getWineColor } from '@/lib/utils';
-import type { Bottle } from '@/lib/types';
+import type { BottleInstance } from '@/lib/types';
 
 interface BottleCircleProps {
-  bottle: Bottle;
+  bottle: BottleInstance;
   onClick: () => void;
 }
 
 export function BottleCircle({ bottle, onClick }: BottleCircleProps) {
-  const color = getWineColor(bottle.type);
+  const wine = bottle.wine;
+  if (!wine) return null;
+
+  const color = getWineColor(wine.type);
 
   return (
     <button
       onClick={onClick}
       className="relative w-full aspect-square rounded-full transition-transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-wine-red focus:ring-offset-2"
       style={{ backgroundColor: color }}
-      aria-label={`${bottle.winery} ${bottle.name}`}
+      aria-label={`${wine.winery} ${wine.name}`}
     >
       <div className="absolute inset-0 flex flex-col items-center justify-center p-2 gap-0.5">
         <span className="text-xs font-bold text-white text-center line-clamp-1 drop-shadow-md">
-          {bottle.winery}
+          {wine.winery}
         </span>
         <span className="text-[10px] font-medium text-white/90 text-center line-clamp-1 drop-shadow-md">
-          {bottle.name}
+          {wine.name}
         </span>
       </div>
 

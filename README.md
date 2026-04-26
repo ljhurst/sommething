@@ -109,20 +109,30 @@ See [CI/CD Documentation](.github/workflows/README.md) for all available command
 ```
 src/
 ├── app/                    # Next.js App Router pages
+│   ├── page.tsx           # Main wine fridge view
+│   └── analytics/         # Analytics dashboard
 ├── components/             # React components
 │   ├── WineFridgeGrid.tsx # Main grid container
 │   ├── BottleSlot.tsx     # Individual bottle slot
-│   ├── BottleCircle.tsx   # Mobile bottle view
-│   └── Bottle3D.tsx       # Desktop 3D bottle
+│   ├── BottleCircle.tsx   # Mobile bottle view (2D)
+│   ├── Bottle3D.tsx       # Desktop 3D bottle
+│   ├── WineFridge3D.tsx   # 3D fridge view
+│   ├── AddBottleModal.tsx # Add wine + bottle form
+│   ├── BottleDetailModal.tsx # Bottle details + consume
+│   └── AuthModal.tsx      # Authentication
 ├── lib/                    # Utilities and helpers
 │   ├── supabase.ts        # Database client
-│   ├── types.ts           # TypeScript types
-│   └── utils.ts           # Helper functions
+│   ├── types.ts           # TypeScript types (normalized schema)
+│   ├── utils.ts           # Helper functions
+│   └── analytics.ts       # Analytics calculations
 └── hooks/                  # Custom React hooks
-    ├── useBottles.ts      # Bottle data management
+    ├── useBottles.ts      # Bottle instance management (space-specific)
+    ├── useWines.ts        # Wine vintage CRUD operations
+    ├── useSpaces.ts       # Space management + collaboration
     └── useConsumption.ts  # Consumption tracking
 
 tests/                      # Test files (mirrors src/)
+supabase/migrations/        # Database migrations
 ```
 
 ## Testing
