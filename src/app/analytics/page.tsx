@@ -7,7 +7,7 @@ import { useBottles } from '@/hooks/useBottles';
 import { useConsumption } from '@/hooks/useConsumption';
 import { calculateAnalytics, type AnalyticsData } from '@/lib/analytics';
 import { formatPrice, getWineColor } from '@/lib/utils';
-import type { ConsumptionHistory, BottleData } from '@/lib/types';
+import type { Consumption, BottleData } from '@/lib/types';
 
 export default function AnalyticsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,7 +15,7 @@ export default function AnalyticsPage() {
   const { getConsumptionHistory } = useConsumption();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [showConsumed, setShowConsumed] = useState(false);
-  const [consumedBottles, setConsumedBottles] = useState<ConsumptionHistory[]>([]);
+  const [consumedBottles, setConsumedBottles] = useState<Consumption[]>([]);
   const [loadingConsumed, setLoadingConsumed] = useState(false);
 
   useEffect(() => {

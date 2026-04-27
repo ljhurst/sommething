@@ -4,7 +4,7 @@ import { useConsumption } from '@/hooks/useConsumption';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { WineType } from '@/lib/types';
-import type { BottleInstance, Consumption, Rating } from '@/lib/types';
+import type { BottleInstance, Consumption, WineRating } from '@/lib/types';
 import type { User } from '@supabase/supabase-js';
 
 vi.mock('@/lib/supabase', () => ({
@@ -54,7 +54,7 @@ describe('useConsumption', () => {
       space_id: 'space-1',
       consumed_at: '2024-01-02T00:00:00Z',
       notes: 'Great wine',
-      rating: 'thumbs_up' as Rating,
+      rating: { score: 85, date: '2024-01-02T00:00:00Z' },
     },
   ];
 
@@ -91,10 +91,12 @@ describe('useConsumption', () => {
 
       const { result } = renderHook(() => useConsumption());
 
+      const testRating: WineRating = { score: 90, date: new Date().toISOString() };
+
       const success = await result.current.consumeBottle({
         bottle: mockBottle,
         notes: 'Excellent',
-        rating: 'thumbs_up' as Rating,
+        rating: testRating,
       });
 
       expect(success).toBe(true);
@@ -104,7 +106,7 @@ describe('useConsumption', () => {
         consumed_by_user_id: 'user-123',
         space_id: 'space-1',
         notes: 'Excellent',
-        rating: 'thumbs_up',
+        rating: testRating,
       });
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith('id', 'bottle-1');
@@ -125,7 +127,7 @@ describe('useConsumption', () => {
       const success = await result.current.consumeBottle({ bottle: mockBottle });
 
       await waitFor(() => {
-        expect(result.current.error).toBe('You must be logged in to consume bottles');
+        expect(result.current.error).toBe('You must be logged in to perform this action');
       });
 
       expect(success).toBe(false);
@@ -151,7 +153,7 @@ describe('useConsumption', () => {
       const success = await result.current.consumeBottle({ bottle: invalidBottle });
 
       await waitFor(() => {
-        expect(result.current.error).toBe('Invalid bottle data');
+        expect(result.current.error).toBe('Invalid data provided');
       });
 
       expect(success).toBe(false);

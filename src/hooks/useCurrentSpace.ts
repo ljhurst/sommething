@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { STORAGE_KEYS } from '@/lib/constants';
 import type { Space } from '@/lib/types';
 
 export function useCurrentSpace(spaces: Space[]) {
@@ -8,7 +9,7 @@ export function useCurrentSpace(spaces: Space[]) {
   useEffect(() => {
     if (typeof window === 'undefined' || spaces.length === 0) return;
 
-    const stored = localStorage.getItem('currentSpaceId');
+    const stored = localStorage.getItem(STORAGE_KEYS.CURRENT_SPACE_ID);
     const storedSpaceExists = stored && spaces.some((s) => s.id === stored);
 
     // Only initialize once or when stored space exists
@@ -19,7 +20,7 @@ export function useCurrentSpace(spaces: Space[]) {
       } else if (!isInitialized.current && spaces.length > 0) {
         const firstSpaceId = spaces[0].id;
         setCurrentSpaceId(firstSpaceId);
-        localStorage.setItem('currentSpaceId', firstSpaceId);
+        localStorage.setItem(STORAGE_KEYS.CURRENT_SPACE_ID, firstSpaceId);
         isInitialized.current = true;
       }
     }
@@ -28,7 +29,7 @@ export function useCurrentSpace(spaces: Space[]) {
   const selectSpace = useCallback((spaceId: string) => {
     setCurrentSpaceId(spaceId);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('currentSpaceId', spaceId);
+      localStorage.setItem(STORAGE_KEYS.CURRENT_SPACE_ID, spaceId);
     }
   }, []);
 

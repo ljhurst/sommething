@@ -61,7 +61,6 @@ describe('Module Import Smoke Tests', () => {
     it('should import types without errors', async () => {
       const module = await import('@/lib/types');
       expect(module.WineType).toBeDefined();
-      expect(module.Rating).toBeDefined();
     });
   });
 

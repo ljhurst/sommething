@@ -11,13 +11,14 @@ import { EditWineModal } from '@/components/EditWineModal';
 import { AuthModal } from '@/components/AuthModal';
 import { SpaceSwitcher } from '@/components/SpaceSwitcher';
 import { CreateSpaceModal } from '@/components/CreateSpaceModal';
-import { useBottles } from '@/hooks/useBottles';
+import { useBottleOperations } from '@/hooks/useBottleOperations';
 import { useWines } from '@/hooks/useWines';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useConsumption } from '@/hooks/useConsumption';
 import { useCurrentSpace } from '@/hooks/useCurrentSpace';
+import { useModalState } from '@/hooks/useModalState';
 import { useAuth } from '@/contexts/AuthContext';
-import type { BottleInstance, NewWine, NewSpace, Rating, Wine, UpdateWine } from '@/lib/types';
+import type { BottleInstance, NewWine, NewSpace, WineRating, Wine, UpdateWine } from '@/lib/types';
 
 const WineFridge3D = dynamic(
   () => import('@/components/WineFridge3D').then((mod) => ({ default: mod.WineFridge3D })),
@@ -28,19 +29,22 @@ export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const { spaces, loading: spacesLoading, addSpace } = useSpaces();
   const { currentSpace, selectSpace } = useCurrentSpace(spaces);
-  const { bottles, loading, error, addBottle, refetch } = useBottles(currentSpace?.id);
-  const { addWine, updateWine, getWine } = useWines();
+  const { bottles, loading, error, addBottleWithWine, refetch } = useBottleOperations(
+    currentSpace?.id
+  );
+  const { updateWine, getWine } = useWines();
   const { consumeBottle } = useConsumption();
+
+  const addModal = useModalState();
+  const detailModal = useModalState();
+  const editWineModal = useModalState();
+  const authModal = useModalState();
+  const createSpaceModal = useModalState();
+  const sidebar = useModalState();
 
   const [selectedBottle, setSelectedBottle] = useState<BottleInstance | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showEditWineModal, setShowEditWineModal] = useState(false);
   const [editingWine, setEditingWine] = useState<Wine | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showCreateSpaceModal, setShowCreateSpaceModal] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [view3D, setView3D] = useState(false);
 
@@ -68,39 +72,23 @@ export default function Home() {
 
   const handleEmptySlotClick = (slotNumber: number) => {
     if (!user) {
-      setShowAuthModal(true);
+      authModal.open();
       return;
     }
     setSelectedSlot(slotNumber);
-    setShowAddModal(true);
+    addModal.open();
   };
 
   const handleBottleClick = (bottle: BottleInstance) => {
     setSelectedBottle(bottle);
-    setShowDetailModal(true);
+    detailModal.open();
   };
 
   const handleAddBottle = async (wineIdOrData: string | NewWine, slotPosition: number) => {
-    if (!currentSpace) return;
-
-    let wineId: string;
-
-    if (typeof wineIdOrData === 'string') {
-      wineId = wineIdOrData;
-    } else {
-      const createdWine = await addWine(wineIdOrData);
-      if (!createdWine) return;
-      wineId = createdWine.id;
-    }
-
-    await addBottle({
-      wine_id: wineId,
-      space_id: currentSpace.id,
-      slot_position: slotPosition,
-    });
+    await addBottleWithWine(wineIdOrData, slotPosition);
   };
 
-  const handleConsumeBottle = async (bottleId: string, notes?: string, rating?: Rating) => {
+  const handleConsumeBottle = async (bottleId: string, notes?: string, rating?: WineRating) => {
     const bottle = bottles.find((b) => b.id === bottleId);
     if (!bottle) return;
 
@@ -121,8 +109,8 @@ export default function Home() {
     const wine = await getWine(wineId);
     if (wine) {
       setEditingWine(wine);
-      setShowEditWineModal(true);
-      setShowDetailModal(false);
+      editWineModal.open();
+      detailModal.close();
     }
   };
 
@@ -135,11 +123,11 @@ export default function Home() {
 
   return (
     <>
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar isOpen={sidebar.isOpen} onClose={sidebar.close} />
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <Header
-            onMenuClick={() => setSidebarOpen(true)}
+            onMenuClick={sidebar.open}
             showSpaceSwitcher={!!(user && spaces.length > 0)}
             spaceSwitcher={
               <SpaceSwitcher
@@ -147,7 +135,7 @@ export default function Home() {
                 currentSpaceId={currentSpace?.id || null}
                 bottleCounts={bottleCounts}
                 onSpaceChange={selectSpace}
-                onCreateNew={() => setShowCreateSpaceModal(true)}
+                onCreateNew={createSpaceModal.open}
               />
             }
           />
@@ -166,7 +154,7 @@ export default function Home() {
                   Track your wine collection with elegance and ease. Sign in to get started.
                 </p>
                 <button
-                  onClick={() => setShowAuthModal(true)}
+                  onClick={authModal.open}
                   className="px-6 py-3 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-lg font-medium"
                 >
                   Sign In or Create Account
@@ -198,7 +186,7 @@ export default function Home() {
                       create multiple spaces like fridges, cellars, or racks.
                     </p>
                     <button
-                      onClick={() => setShowCreateSpaceModal(true)}
+                      onClick={createSpaceModal.open}
                       className="px-6 py-3 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-lg font-medium"
                     >
                       Create Your First Space
@@ -235,11 +223,11 @@ export default function Home() {
 
         {currentSpace && (
           <AddBottleModal
-            isOpen={showAddModal}
+            isOpen={addModal.isOpen}
             slotNumber={selectedSlot || 1}
             spaceId={currentSpace.id}
             onClose={() => {
-              setShowAddModal(false);
+              addModal.close();
               setSelectedSlot(null);
             }}
             onSubmit={handleAddBottle}
@@ -247,10 +235,10 @@ export default function Home() {
         )}
 
         <BottleDetailModal
-          isOpen={showDetailModal}
+          isOpen={detailModal.isOpen}
           bottle={selectedBottle}
           onClose={() => {
-            setShowDetailModal(false);
+            detailModal.close();
             setSelectedBottle(null);
           }}
           onConsume={handleConsumeBottle}
@@ -258,20 +246,20 @@ export default function Home() {
         />
 
         <EditWineModal
-          isOpen={showEditWineModal}
+          isOpen={editWineModal.isOpen}
           wine={editingWine}
           onClose={() => {
-            setShowEditWineModal(false);
+            editWineModal.close();
             setEditingWine(null);
           }}
           onSubmit={handleUpdateWine}
         />
 
-        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        <AuthModal isOpen={authModal.isOpen} onClose={authModal.close} />
 
         <CreateSpaceModal
-          isOpen={showCreateSpaceModal}
-          onClose={() => setShowCreateSpaceModal(false)}
+          isOpen={createSpaceModal.isOpen}
+          onClose={createSpaceModal.close}
           onSubmit={handleCreateSpace}
         />
       </main>
