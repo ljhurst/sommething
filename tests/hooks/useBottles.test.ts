@@ -74,16 +74,17 @@ describe('useBottles', () => {
         signOut: vi.fn(),
       });
 
-      const mockSelect = vi.fn().mockReturnThis();
+      const mockEq = vi.fn().mockReturnThis();
       const mockOrder = vi.fn().mockResolvedValue({ data: mockBottles, error: null });
+      const mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
       const mockFrom = vi.fn().mockReturnValue({
         select: mockSelect,
       });
 
-      mockSelect.mockReturnValue({ order: mockOrder });
+      mockEq.mockReturnValue({ order: mockOrder });
       vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
-      const { result } = renderHook(() => useBottles());
+      const { result } = renderHook(() => useBottles('space-1'));
 
       await waitFor(() => {
         expect(result.current.loading).toBe(false);
@@ -97,6 +98,26 @@ describe('useBottles', () => {
     it('should return empty array when user is not authenticated', async () => {
       vi.mocked(useAuth).mockReturnValue({
         user: null,
+        session: null,
+        loading: false,
+        signUp: vi.fn(),
+        signIn: vi.fn(),
+        signOut: vi.fn(),
+      });
+
+      const { result } = renderHook(() => useBottles('space-1'));
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      expect(result.current.bottles).toEqual([]);
+      expect(result.current.error).toBeNull();
+    });
+
+    it('should return empty array when spaceId is not provided', async () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: mockUser,
         session: null,
         loading: false,
         signUp: vi.fn(),
@@ -125,16 +146,17 @@ describe('useBottles', () => {
       });
 
       const mockError = new Error('Database error');
-      const mockSelect = vi.fn().mockReturnThis();
+      const mockEq = vi.fn().mockReturnThis();
       const mockOrder = vi.fn().mockResolvedValue({ data: null, error: mockError });
+      const mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
       const mockFrom = vi.fn().mockReturnValue({
         select: mockSelect,
       });
 
-      mockSelect.mockReturnValue({ order: mockOrder });
+      mockEq.mockReturnValue({ order: mockOrder });
       vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
 
-      const { result } = renderHook(() => useBottles());
+      const { result } = renderHook(() => useBottles('space-1'));
 
       await waitFor(() => {
         expect(result.current.loading).toBe(false);

@@ -5,6 +5,7 @@ export function registerServiceWorker() {
         .register('/sw.js')
         .then(() => {
           // Service Worker registered successfully
+          // Update detection is handled by UpdateNotification component
         })
         .catch((error) => {
           console.error('Service Worker registration failed:', error);

@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { WineFridgeGrid } from '@/components/WineFridgeGrid';
 import { AddBottleModal } from '@/components/AddBottleModal';
 import { BottleDetailModal } from '@/components/BottleDetailModal';
+import { EditWineModal } from '@/components/EditWineModal';
 import { AuthModal } from '@/components/AuthModal';
 import { SpaceSwitcher } from '@/components/SpaceSwitcher';
 import { CreateSpaceModal } from '@/components/CreateSpaceModal';
@@ -16,7 +17,7 @@ import { useSpaces } from '@/hooks/useSpaces';
 import { useConsumption } from '@/hooks/useConsumption';
 import { useCurrentSpace } from '@/hooks/useCurrentSpace';
 import { useAuth } from '@/contexts/AuthContext';
-import type { BottleInstance, NewWine, NewSpace, Rating } from '@/lib/types';
+import type { BottleInstance, NewWine, NewSpace, Rating, Wine, UpdateWine } from '@/lib/types';
 
 const WineFridge3D = dynamic(
   () => import('@/components/WineFridge3D').then((mod) => ({ default: mod.WineFridge3D })),
@@ -28,13 +29,15 @@ export default function Home() {
   const { spaces, loading: spacesLoading, addSpace } = useSpaces();
   const { currentSpace, selectSpace } = useCurrentSpace(spaces);
   const { bottles, loading, error, addBottle, refetch } = useBottles(currentSpace?.id);
-  const { addWine } = useWines();
+  const { addWine, updateWine, getWine } = useWines();
   const { consumeBottle } = useConsumption();
 
   const [selectedBottle, setSelectedBottle] = useState<BottleInstance | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditWineModal, setShowEditWineModal] = useState(false);
+  const [editingWine, setEditingWine] = useState<Wine | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCreateSpaceModal, setShowCreateSpaceModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -77,17 +80,24 @@ export default function Home() {
     setShowDetailModal(true);
   };
 
-  const handleAddBottle = async (wine: NewWine, slotPosition: number) => {
+  const handleAddBottle = async (wineIdOrData: string | NewWine, slotPosition: number) => {
     if (!currentSpace) return;
 
-    const createdWine = await addWine(wine);
-    if (createdWine) {
-      await addBottle({
-        wine_id: createdWine.id,
-        space_id: currentSpace.id,
-        slot_position: slotPosition,
-      });
+    let wineId: string;
+
+    if (typeof wineIdOrData === 'string') {
+      wineId = wineIdOrData;
+    } else {
+      const createdWine = await addWine(wineIdOrData);
+      if (!createdWine) return;
+      wineId = createdWine.id;
     }
+
+    await addBottle({
+      wine_id: wineId,
+      space_id: currentSpace.id,
+      slot_position: slotPosition,
+    });
   };
 
   const handleConsumeBottle = async (bottleId: string, notes?: string, rating?: Rating) => {
@@ -104,6 +114,22 @@ export default function Home() {
     const createdSpace = await addSpace(space as NewSpace);
     if (createdSpace) {
       selectSpace(createdSpace.id);
+    }
+  };
+
+  const handleEditWine = async (wineId: string) => {
+    const wine = await getWine(wineId);
+    if (wine) {
+      setEditingWine(wine);
+      setShowEditWineModal(true);
+      setShowDetailModal(false);
+    }
+  };
+
+  const handleUpdateWine = async (wineId: string, updates: UpdateWine) => {
+    const success = await updateWine(wineId, updates);
+    if (success) {
+      await refetch();
     }
   };
 
@@ -160,25 +186,48 @@ export default function Home() {
 
           {user && !authLoading && !loading && !spacesLoading && (
             <>
-              {isDesktop && currentSpace && (
-                <div className="flex justify-end mb-4">
-                  <button
-                    onClick={() => setView3D(!view3D)}
-                    className="px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-sm font-medium"
-                  >
-                    {view3D ? '2D Grid' : '3D View'}
-                  </button>
+              {spaces.length === 0 ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="text-center max-w-md">
+                    <div className="text-6xl mb-6">🍷</div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Create Your First Space
+                    </h2>
+                    <p className="text-gray-600 mb-6">
+                      Get started by creating a storage space for your wine collection. You can
+                      create multiple spaces like fridges, cellars, or racks.
+                    </p>
+                    <button
+                      onClick={() => setShowCreateSpaceModal(true)}
+                      className="px-6 py-3 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-lg font-medium"
+                    >
+                      Create Your First Space
+                    </button>
+                  </div>
                 </div>
-              )}
-
-              {view3D && isDesktop ? (
-                <WineFridge3D bottles={bottles} onBottleClick={handleBottleClick} />
               ) : (
-                <WineFridgeGrid
-                  bottles={bottles}
-                  onBottleClick={handleBottleClick}
-                  onEmptySlotClick={handleEmptySlotClick}
-                />
+                <>
+                  {isDesktop && currentSpace && (
+                    <div className="flex justify-end mb-4">
+                      <button
+                        onClick={() => setView3D(!view3D)}
+                        className="px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-sm font-medium"
+                      >
+                        {view3D ? '2D Grid' : '3D View'}
+                      </button>
+                    </div>
+                  )}
+
+                  {view3D && isDesktop ? (
+                    <WineFridge3D bottles={bottles} onBottleClick={handleBottleClick} />
+                  ) : (
+                    <WineFridgeGrid
+                      bottles={bottles}
+                      onBottleClick={handleBottleClick}
+                      onEmptySlotClick={handleEmptySlotClick}
+                    />
+                  )}
+                </>
               )}
             </>
           )}
@@ -205,6 +254,17 @@ export default function Home() {
             setSelectedBottle(null);
           }}
           onConsume={handleConsumeBottle}
+          onEditWine={handleEditWine}
+        />
+
+        <EditWineModal
+          isOpen={showEditWineModal}
+          wine={editingWine}
+          onClose={() => {
+            setShowEditWineModal(false);
+            setEditingWine(null);
+          }}
+          onSubmit={handleUpdateWine}
         />
 
         <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />

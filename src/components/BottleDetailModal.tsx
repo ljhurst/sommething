@@ -10,6 +10,7 @@ interface BottleDetailModalProps {
   onClose: () => void;
   onConsume: (bottleId: string, notes?: string, rating?: Rating) => Promise<void>;
   onNavigate?: (direction: 'prev' | 'next') => void;
+  onEditWine?: (wineId: string) => void;
 }
 
 export function BottleDetailModal({
@@ -18,6 +19,7 @@ export function BottleDetailModal({
   onClose,
   onConsume,
   onNavigate,
+  onEditWine,
 }: BottleDetailModalProps) {
   const [showConsumeForm, setShowConsumeForm] = useState(false);
   const [consumeNotes, setConsumeNotes] = useState('');
@@ -139,6 +141,23 @@ export function BottleDetailModal({
                 Mark as Consumed
               </button>
 
+              {onEditWine && (
+                <button
+                  onClick={() => onEditWine(wine.id)}
+                  className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  Edit Wine Details
+                </button>
+              )}
+
               {onNavigate && (
                 <div className="flex gap-3">
                   <button
@@ -149,7 +168,7 @@ export function BottleDetailModal({
                   </button>
                   <button
                     onClick={() => onNavigate('next')}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-7 hover:bg-gray-50 transition-colors"
                   >
                     Next →
                   </button>

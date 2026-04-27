@@ -32,7 +32,8 @@ export function useSpaces() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const getSpace = async (id: string): Promise<Space | null> => {
     try {

@@ -14,22 +14,22 @@ export function useBottles(spaceId?: string) {
       setLoading(true);
       setError(null);
 
-      if (!user) {
+      if (!user || !spaceId) {
         setBottles([]);
         setLoading(false);
         return;
       }
 
-      let query = supabase.from('bottle_instances').select(`
+      const { data, error: fetchError } = await supabase
+        .from('bottle_instances')
+        .select(
+          `
           *,
           wine:wines(*)
-        `);
-
-      if (spaceId) {
-        query = query.eq('space_id', spaceId);
-      }
-
-      const { data, error: fetchError } = await query.order('slot_position', { ascending: true });
+        `
+        )
+        .eq('space_id', spaceId)
+        .order('slot_position', { ascending: true });
 
       if (fetchError) throw fetchError;
       setBottles(data || []);
@@ -38,7 +38,8 @@ export function useBottles(spaceId?: string) {
     } finally {
       setLoading(false);
     }
-  }, [user, spaceId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, spaceId]);
 
   const addBottle = async (bottle: NewBottleInstance): Promise<BottleInstance | null> => {
     try {

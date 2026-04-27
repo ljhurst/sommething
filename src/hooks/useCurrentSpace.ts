@@ -1,28 +1,41 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { Space } from '@/lib/types';
 
 export function useCurrentSpace(spaces: Space[]) {
-  const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const spaceIdFromUrl = searchParams.get('space');
+  const hasSetDefaultSpace = useRef(false);
+
+  const currentSpace = useMemo(() => {
+    if (spaces.length === 0) return null;
+
+    if (spaceIdFromUrl) {
+      return spaces.find((s) => s.id === spaceIdFromUrl) || null;
+    }
+
+    return spaces[0];
+  }, [spaces, spaceIdFromUrl]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (hasSetDefaultSpace.current || spaces.length === 0 || spaceIdFromUrl) return;
 
-    const stored = localStorage.getItem('currentSpaceId');
-    if (stored && spaces.some((s) => s.id === stored)) {
-      setCurrentSpaceId(stored);
-    } else if (spaces.length > 0) {
-      setCurrentSpaceId(spaces[0].id);
-    }
-  }, [spaces]);
+    hasSetDefaultSpace.current = true;
+    const params = new URLSearchParams(window.location.search);
+    params.set('space', spaces[0].id);
+    router.replace(`/?${params.toString()}`, { scroll: false });
+  }, [spaces, spaceIdFromUrl, router]);
 
-  const selectSpace = useCallback((spaceId: string) => {
-    setCurrentSpaceId(spaceId);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('currentSpaceId', spaceId);
-    }
-  }, []);
+  const selectSpace = (spaceId: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('space', spaceId);
+    router.push(`/?${params.toString()}`, { scroll: false });
+  };
 
-  const currentSpace = spaces.find((s) => s.id === currentSpaceId) || spaces[0] || null;
-
-  return { currentSpace, currentSpaceId, selectSpace };
+  return {
+    currentSpace,
+    currentSpaceId: currentSpace?.id || null,
+    selectSpace,
+  };
 }
