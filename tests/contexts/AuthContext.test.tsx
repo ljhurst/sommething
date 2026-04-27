@@ -16,6 +16,14 @@ vi.mock('@/lib/supabase', () => ({
   },
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 describe('AuthContext', () => {
   const mockUser: User = {
     id: 'user-123',
