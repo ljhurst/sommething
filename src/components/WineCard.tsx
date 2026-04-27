@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Wine } from '@/lib/types';
 import { getWineColor, formatPrice } from '@/lib/utils';
 
@@ -14,8 +15,11 @@ interface WineCardProps {
 }
 
 export function WineCard({ wine, onEdit, onDelete, getUsage }: WineCardProps) {
+  const { user } = useAuth();
   const [usage, setUsage] = useState({ bottleCount: 0, consumptionCount: 0, spaceCount: 0 });
   const [loadingUsage, setLoadingUsage] = useState(true);
+
+  const isCreator = user?.id === wine.created_by_user_id;
 
   useEffect(() => {
     getUsage(wine.id).then((data) => {
@@ -72,20 +76,22 @@ export function WineCard({ wine, onEdit, onDelete, getUsage }: WineCardProps) {
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <button
-          onClick={() => onEdit(wine)}
-          className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete(wine)}
-          className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
-        >
-          Delete
-        </button>
-      </div>
+      {isCreator && (
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={() => onEdit(wine)}
+            className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(wine)}
+            className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }

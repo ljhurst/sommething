@@ -44,6 +44,10 @@ export interface SpaceMember {
   user_id: string;
   role: 'owner' | 'editor' | 'viewer';
   joined_at: string;
+  user?: {
+    id: string;
+    email: string;
+  };
 }
 
 export interface BottleInstance {
@@ -52,7 +56,12 @@ export interface BottleInstance {
   space_id: string;
   slot_position: number;
   added_at: string;
+  added_by_user_id: string;
   wine?: Wine;
+  added_by?: {
+    id: string;
+    email: string;
+  };
 }
 
 export interface Consumption {
@@ -72,8 +81,13 @@ export type UpdateWine = Partial<NewWine>;
 export type NewSpace = Omit<Space, 'id' | 'created_at' | 'updated_at'>;
 export type UpdateSpace = Partial<NewSpace>;
 
-export type NewBottleInstance = Omit<BottleInstance, 'id' | 'added_at' | 'wine'>;
-export type UpdateBottleInstance = Partial<NewBottleInstance>;
+export type NewBottleInstance = Omit<
+  BottleInstance,
+  'id' | 'added_at' | 'wine' | 'added_by' | 'added_by_user_id'
+>;
+export type UpdateBottleInstance = Partial<
+  Omit<BottleInstance, 'id' | 'added_at' | 'wine' | 'added_by' | 'added_by_user_id'>
+>;
 
 export type NewConsumption = Omit<Consumption, 'id' | 'consumed_at' | 'wine'>;
 

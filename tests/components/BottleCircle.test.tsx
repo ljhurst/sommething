@@ -22,6 +22,7 @@ describe('BottleCircle', () => {
     space_id: 'space-1',
     slot_position: 5,
     added_at: new Date().toISOString(),
+    added_by_user_id: 'user-1',
     wine: mockWine,
   };
 

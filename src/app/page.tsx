@@ -11,6 +11,7 @@ import { EditWineModal } from '@/components/EditWineModal';
 import { AuthModal } from '@/components/AuthModal';
 import { SpaceSwitcher } from '@/components/SpaceSwitcher';
 import { CreateSpaceModal } from '@/components/CreateSpaceModal';
+import { ShareSpaceModal } from '@/components/ShareSpaceModal';
 import { useBottleOperations } from '@/hooks/useBottleOperations';
 import { useWines } from '@/hooks/useWines';
 import { useSpaces } from '@/hooks/useSpaces';
@@ -27,7 +28,7 @@ const WineFridge3D = dynamic(
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
-  const { spaces, loading: spacesLoading, addSpace } = useSpaces();
+  const { spaces, loading: spacesLoading, addSpace, getSpaceMembers } = useSpaces();
   const { currentSpace, selectSpace } = useCurrentSpace(spaces);
   const { bottles, loading, error, addBottleWithWine, refetch } = useBottleOperations(
     currentSpace?.id
@@ -40,6 +41,7 @@ export default function Home() {
   const editWineModal = useModalState();
   const authModal = useModalState();
   const createSpaceModal = useModalState();
+  const shareSpaceModal = useModalState();
   const sidebar = useModalState();
 
   const [selectedBottle, setSelectedBottle] = useState<BottleInstance | null>(null);
@@ -47,6 +49,7 @@ export default function Home() {
   const [editingWine, setEditingWine] = useState<Wine | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
   const [view3D, setView3D] = useState(false);
+  const [userRole, setUserRole] = useState<'owner' | 'editor' | 'viewer'>('owner');
 
   const bottleCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -70,9 +73,32 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkDesktop);
   }, []);
 
+  useEffect(() => {
+    const determineUserRole = async () => {
+      if (!currentSpace || !user) {
+        setUserRole('owner');
+        return;
+      }
+
+      if (currentSpace.owner_user_id === user.id) {
+        setUserRole('owner');
+        return;
+      }
+
+      const members = await getSpaceMembers(currentSpace.id);
+      const member = members.find((m) => m.user_id === user.id);
+      setUserRole(member?.role || 'viewer');
+    };
+
+    determineUserRole();
+  }, [currentSpace, user, getSpaceMembers]);
+
   const handleEmptySlotClick = (slotNumber: number) => {
     if (!user) {
       authModal.open();
+      return;
+    }
+    if (userRole === 'viewer') {
       return;
     }
     setSelectedSlot(slotNumber);
@@ -130,13 +156,32 @@ export default function Home() {
             onMenuClick={sidebar.open}
             showSpaceSwitcher={!!(user && spaces.length > 0)}
             spaceSwitcher={
-              <SpaceSwitcher
-                spaces={spaces}
-                currentSpaceId={currentSpace?.id || null}
-                bottleCounts={bottleCounts}
-                onSpaceChange={selectSpace}
-                onCreateNew={createSpaceModal.open}
-              />
+              <div className="flex items-center gap-2">
+                <SpaceSwitcher
+                  spaces={spaces}
+                  currentSpaceId={currentSpace?.id || null}
+                  bottleCounts={bottleCounts}
+                  onSpaceChange={selectSpace}
+                  onCreateNew={createSpaceModal.open}
+                />
+                {currentSpace && user?.id === currentSpace.owner_user_id && (
+                  <button
+                    onClick={shareSpaceModal.open}
+                    className="p-2 text-gray-600 hover:text-wine-red transition-colors"
+                    title="Share space"
+                    aria-label="Share space"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
             }
           />
 
@@ -243,6 +288,7 @@ export default function Home() {
           }}
           onConsume={handleConsumeBottle}
           onEditWine={handleEditWine}
+          userRole={userRole}
         />
 
         <EditWineModal
@@ -262,6 +308,14 @@ export default function Home() {
           onClose={createSpaceModal.close}
           onSubmit={handleCreateSpace}
         />
+
+        {currentSpace && (
+          <ShareSpaceModal
+            isOpen={shareSpaceModal.isOpen}
+            space={currentSpace}
+            onClose={shareSpaceModal.close}
+          />
+        )}
       </main>
     </>
   );

@@ -53,6 +53,7 @@ describe('Wine Types', () => {
       space_id: 'space-1',
       slot_position: 1,
       added_at: new Date().toISOString(),
+      added_by_user_id: 'user-1',
     };
 
     expect(bottleInstance.slot_position).toBe(1);
