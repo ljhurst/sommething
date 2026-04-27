@@ -211,51 +211,48 @@ export function ShareSpaceModal({ isOpen, space, onClose }: ShareSpaceModalProps
                       key={member.id}
                       className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">{getRoleIcon(member.role)}</span>
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {member.user?.email || 'Unknown'}
-                                {isCurrentUser && (
-                                  <span className="ml-2 text-sm text-gray-500">(you)</span>
-                                )}
-                              </div>
-                              <div className="text-sm text-gray-600 capitalize">{member.role}</div>
-                            </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{getRoleIcon(member.role)}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900 truncate">
+                            {member.user?.email || 'Unknown'}
+                            {isCurrentUser && (
+                              <span className="ml-2 text-sm text-gray-500">(you)</span>
+                            )}
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Joined {new Date(member.joined_at).toLocaleDateString()}
-                          </div>
+                          <div className="text-sm text-gray-600 capitalize">{member.role}</div>
                         </div>
-
-                        {isOwner && !isMemberOwner && !isCurrentUser && (
-                          <div className="flex items-center gap-2">
-                            <select
-                              value={member.role}
-                              onChange={(e) =>
-                                handleRoleChange(
-                                  member.id,
-                                  e.target.value as 'owner' | 'editor' | 'viewer'
-                                )
-                              }
-                              className="text-sm border border-gray-300 rounded px-2 py-1 text-gray-700"
-                            >
-                              <option value="editor">Editor</option>
-                              <option value="viewer">Viewer</option>
-                            </select>
-                            <button
-                              onClick={() =>
-                                handleRemoveMember(member.id, member.user?.email || 'this member')
-                              }
-                              className="text-sm text-red-600 hover:text-red-700 font-medium"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        )}
                       </div>
+
+                      <div className="text-xs text-gray-500 mb-3">
+                        Joined {new Date(member.joined_at).toLocaleDateString()}
+                      </div>
+
+                      {isOwner && !isMemberOwner && !isCurrentUser && (
+                        <div className="flex gap-2">
+                          <select
+                            value={member.role}
+                            onChange={(e) =>
+                              handleRoleChange(
+                                member.id,
+                                e.target.value as 'owner' | 'editor' | 'viewer'
+                              )
+                            }
+                            className="flex-1 text-sm border border-gray-300 rounded px-2 py-1 text-gray-700"
+                          >
+                            <option value="editor">Editor</option>
+                            <option value="viewer">Viewer</option>
+                          </select>
+                          <button
+                            onClick={() =>
+                              handleRemoveMember(member.id, member.user?.email || 'this member')
+                            }
+                            className="px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium border border-red-300 rounded hover:bg-red-50 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
