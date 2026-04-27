@@ -1,27 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseOperation } from './useSupabaseQuery';
+import { TABLES, ERROR_MESSAGES } from '@/lib/constants';
+import { getErrorMessage } from '@/lib/errorHandling';
 import type { BottleInstance, NewBottleInstance, UpdateBottleInstance } from '@/lib/types';
 
 export function useBottles(spaceId?: string) {
   const { user } = useAuth();
+  const { loading, error, setError, execute, executeWithBool } = useSupabaseOperation();
   const [bottles, setBottles] = useState<BottleInstance[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchLoading, setFetchLoading] = useState(true);
 
   const fetchBottles = useCallback(async () => {
     try {
-      setLoading(true);
+      setFetchLoading(true);
       setError(null);
 
       if (!user || !spaceId) {
         setBottles([]);
-        setLoading(false);
         return;
       }
 
       const { data, error: fetchError } = await supabase
-        .from('bottle_instances')
+        .from(TABLES.BOTTLES)
         .select(
           `
           *,
@@ -34,79 +36,75 @@ export function useBottles(spaceId?: string) {
       if (fetchError) throw fetchError;
       setBottles(data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch bottles');
+      setError(getErrorMessage(err, ERROR_MESSAGES.FETCH_FAILED('bottles')));
     } finally {
-      setLoading(false);
+      setFetchLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, spaceId]);
+  }, [user, spaceId, setError]);
 
-  const addBottle = async (bottle: NewBottleInstance): Promise<BottleInstance | null> => {
-    try {
+  const addBottle = useCallback(
+    async (bottle: NewBottleInstance): Promise<BottleInstance | null> => {
       if (!user) {
-        setError('You must be logged in to add bottles');
+        setError(ERROR_MESSAGES.AUTH_REQUIRED);
         return null;
       }
 
-      const { data, error: insertError } = await supabase
-        .from('bottle_instances')
-        .insert(bottle)
-        .select(
-          `
+      return execute(async () => {
+        const { data, error: insertError } = await supabase
+          .from(TABLES.BOTTLES)
+          .insert(bottle)
+          .select(
+            `
           *,
           wine:wines(*)
         `
-        )
-        .single();
+          )
+          .single();
 
-      if (insertError) throw insertError;
+        if (insertError) throw insertError;
 
-      if (data) {
-        setBottles((prev) => [...prev, data].sort((a, b) => a.slot_position - b.slot_position));
-      }
+        if (data) {
+          setBottles((prev) => [...prev, data].sort((a, b) => a.slot_position - b.slot_position));
+        }
 
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add bottle');
-      return null;
-    }
-  };
+        return data;
+      }, ERROR_MESSAGES.ADD_FAILED('bottle'));
+    },
+    [user, execute, setError]
+  );
 
-  const updateBottle = async (id: string, updates: UpdateBottleInstance): Promise<boolean> => {
-    try {
-      const { error: updateError } = await supabase
-        .from('bottle_instances')
-        .update(updates)
-        .eq('id', id);
+  const updateBottle = useCallback(
+    async (id: string, updates: UpdateBottleInstance): Promise<boolean> => {
+      return executeWithBool(async () => {
+        const { error: updateError } = await supabase
+          .from(TABLES.BOTTLES)
+          .update(updates)
+          .eq('id', id);
 
-      if (updateError) throw updateError;
+        if (updateError) throw updateError;
 
-      setBottles((prev) =>
-        prev
-          .map((b) => (b.id === id ? { ...b, ...updates } : b))
-          .sort((a, b) => a.slot_position - b.slot_position)
-      );
+        setBottles((prev) =>
+          prev
+            .map((b) => (b.id === id ? { ...b, ...updates } : b))
+            .sort((a, b) => a.slot_position - b.slot_position)
+        );
+      }, ERROR_MESSAGES.UPDATE_FAILED('bottle'));
+    },
+    [executeWithBool]
+  );
 
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update bottle');
-      return false;
-    }
-  };
+  const deleteBottle = useCallback(
+    async (id: string): Promise<boolean> => {
+      return executeWithBool(async () => {
+        const { error: deleteError } = await supabase.from(TABLES.BOTTLES).delete().eq('id', id);
 
-  const deleteBottle = async (id: string): Promise<boolean> => {
-    try {
-      const { error: deleteError } = await supabase.from('bottle_instances').delete().eq('id', id);
+        if (deleteError) throw deleteError;
 
-      if (deleteError) throw deleteError;
-
-      setBottles((prev) => prev.filter((b) => b.id !== id));
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete bottle');
-      return false;
-    }
-  };
+        setBottles((prev) => prev.filter((b) => b.id !== id));
+      }, ERROR_MESSAGES.DELETE_FAILED('bottle'));
+    },
+    [executeWithBool]
+  );
 
   useEffect(() => {
     fetchBottles();
@@ -114,7 +112,7 @@ export function useBottles(spaceId?: string) {
 
   return {
     bottles,
-    loading,
+    loading: fetchLoading || loading,
     error,
     addBottle,
     updateBottle,

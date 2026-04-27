@@ -1,131 +1,115 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseOperation } from './useSupabaseQuery';
+import { TABLES, ERROR_MESSAGES } from '@/lib/constants';
 import type { Wine, NewWine, UpdateWine } from '@/lib/types';
 
 export function useWines() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, setError, execute, executeWithBool } = useSupabaseOperation();
 
   const fetchWines = useCallback(async (): Promise<Wine[]> => {
-    try {
-      setLoading(true);
-      setError(null);
+    if (!user) {
+      return [];
+    }
 
-      if (!user) {
-        return [];
-      }
-
+    const result = await execute(async () => {
       const { data, error: fetchError } = await supabase
-        .from('wines')
+        .from(TABLES.WINES)
         .select('*')
         .order('winery', { ascending: true });
 
       if (fetchError) throw fetchError;
       return data || [];
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch wines');
-      return [];
-    } finally {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+    }, ERROR_MESSAGES.FETCH_FAILED('wines'));
 
-  const getWine = async (id: string): Promise<Wine | null> => {
-    try {
-      setError(null);
+    return result || [];
+  }, [user, execute]);
 
-      const { data, error: fetchError } = await supabase
-        .from('wines')
-        .select('*')
-        .eq('id', id)
-        .single();
+  const getWine = useCallback(
+    async (id: string): Promise<Wine | null> => {
+      return execute(async () => {
+        const { data, error: fetchError } = await supabase
+          .from(TABLES.WINES)
+          .select('*')
+          .eq('id', id)
+          .single();
 
-      if (fetchError) throw fetchError;
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch wine');
-      return null;
-    }
-  };
+        if (fetchError) throw fetchError;
+        return data;
+      }, ERROR_MESSAGES.FETCH_FAILED('wine'));
+    },
+    [execute]
+  );
 
-  const addWine = async (wine: NewWine): Promise<Wine | null> => {
-    try {
-      setError(null);
-
+  const addWine = useCallback(
+    async (wine: NewWine): Promise<Wine | null> => {
       if (!user) {
-        setError('You must be logged in to add wines');
+        setError(ERROR_MESSAGES.AUTH_REQUIRED);
         return null;
       }
 
-      const { data, error: insertError } = await supabase
-        .from('wines')
-        .insert({ ...wine, created_by_user_id: user.id })
-        .select()
-        .single();
+      return execute(async () => {
+        const { data, error: insertError } = await supabase
+          .from(TABLES.WINES)
+          .insert({ ...wine, created_by_user_id: user.id })
+          .select()
+          .single();
 
-      if (insertError) throw insertError;
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add wine');
-      return null;
-    }
-  };
+        if (insertError) throw insertError;
+        return data;
+      }, ERROR_MESSAGES.ADD_FAILED('wine'));
+    },
+    [user, execute, setError]
+  );
 
-  const updateWine = async (id: string, updates: UpdateWine): Promise<boolean> => {
-    try {
-      setError(null);
+  const updateWine = useCallback(
+    async (id: string, updates: UpdateWine): Promise<boolean> => {
+      return executeWithBool(async () => {
+        const { error: updateError } = await supabase
+          .from(TABLES.WINES)
+          .update(updates)
+          .eq('id', id);
 
-      const { error: updateError } = await supabase.from('wines').update(updates).eq('id', id);
+        if (updateError) throw updateError;
+      }, ERROR_MESSAGES.UPDATE_FAILED('wine'));
+    },
+    [executeWithBool]
+  );
 
-      if (updateError) throw updateError;
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update wine');
-      return false;
-    }
-  };
+  const deleteWine = useCallback(
+    async (id: string): Promise<boolean> => {
+      return executeWithBool(async () => {
+        const { error: deleteError } = await supabase.from(TABLES.WINES).delete().eq('id', id);
 
-  const deleteWine = async (id: string): Promise<boolean> => {
-    try {
-      setError(null);
+        if (deleteError) throw deleteError;
+      }, ERROR_MESSAGES.DELETE_FAILED('wine'));
+    },
+    [executeWithBool]
+  );
 
-      const { error: deleteError } = await supabase.from('wines').delete().eq('id', id);
-
-      if (deleteError) throw deleteError;
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete wine');
-      return false;
-    }
-  };
-
-  const searchWines = async (query: string): Promise<Wine[]> => {
-    try {
-      setLoading(true);
-      setError(null);
-
+  const searchWines = useCallback(
+    async (query: string): Promise<Wine[]> => {
       if (!user) {
         return [];
       }
 
-      const { data, error: fetchError } = await supabase
-        .from('wines')
-        .select('*')
-        .or(`winery.ilike.%${query}%,name.ilike.%${query}%`)
-        .order('winery', { ascending: true });
+      const result = await execute(async () => {
+        const { data, error: fetchError } = await supabase
+          .from(TABLES.WINES)
+          .select('*')
+          .or(`winery.ilike.%${query}%,name.ilike.%${query}%`)
+          .order('winery', { ascending: true });
 
-      if (fetchError) throw fetchError;
-      return data || [];
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search wines');
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (fetchError) throw fetchError;
+        return data || [];
+      }, ERROR_MESSAGES.SEARCH_FAILED('wines'));
+
+      return result || [];
+    },
+    [user, execute]
+  );
 
   return {
     loading,

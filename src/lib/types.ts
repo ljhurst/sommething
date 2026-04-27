@@ -7,9 +7,9 @@ export enum WineType {
   OTHER = 'other',
 }
 
-export enum Rating {
-  THUMBS_UP = 'thumbs_up',
-  THUMBS_DOWN = 'thumbs_down',
+export interface WineRating {
+  score: number;
+  date: string;
 }
 
 export interface Wine {
@@ -62,7 +62,7 @@ export interface Consumption {
   space_id: string;
   consumed_at: string;
   notes?: string;
-  rating?: Rating;
+  rating?: WineRating;
   wine?: Wine;
 }
 
@@ -77,8 +77,4 @@ export type UpdateBottleInstance = Partial<NewBottleInstance>;
 
 export type NewConsumption = Omit<Consumption, 'id' | 'consumed_at' | 'wine'>;
 
-export type Bottle = BottleInstance;
 export type BottleData = Pick<Wine, 'winery' | 'name' | 'type' | 'year' | 'price' | 'score'>;
-export type ConsumptionHistory = Consumption;
-export type NewBottle = NewBottleInstance;
-export type UpdateBottle = UpdateBottleInstance;

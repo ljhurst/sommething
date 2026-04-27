@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   WineType,
-  Rating,
+  type WineRating,
   type Wine,
   type BottleInstance,
   type NewWine,
@@ -18,9 +18,14 @@ describe('Wine Types', () => {
     expect(WineType.OTHER).toBe('other');
   });
 
-  it('should have rating types defined', () => {
-    expect(Rating.THUMBS_UP).toBe('thumbs_up');
-    expect(Rating.THUMBS_DOWN).toBe('thumbs_down');
+  it('should create a valid wine rating object', () => {
+    const rating: WineRating = {
+      score: 95,
+      date: new Date().toISOString(),
+    };
+
+    expect(rating.score).toBe(95);
+    expect(rating.date).toBeDefined();
   });
 
   it('should create a valid wine object', () => {

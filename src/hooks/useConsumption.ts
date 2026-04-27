@@ -1,34 +1,31 @@
-import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Consumption, Rating, BottleInstance, NewConsumption } from '@/lib/types';
+import { useSupabaseOperation } from './useSupabaseQuery';
+import { TABLES, ERROR_MESSAGES } from '@/lib/constants';
+import type { Consumption, WineRating, BottleInstance, NewConsumption } from '@/lib/types';
 
 interface ConsumeBottleParams {
   bottle: BottleInstance;
   notes?: string;
-  rating?: Rating;
+  rating?: WineRating;
 }
 
 export function useConsumption() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, setError, execute, executeWithBool } = useSupabaseOperation();
 
   const consumeBottle = async (params: ConsumeBottleParams): Promise<boolean> => {
-    try {
-      setLoading(true);
-      setError(null);
+    if (!user) {
+      setError(ERROR_MESSAGES.AUTH_REQUIRED);
+      return false;
+    }
 
-      if (!user) {
-        setError('You must be logged in to consume bottles');
-        return false;
-      }
+    if (!params.bottle.wine_id || !params.bottle.space_id) {
+      setError(ERROR_MESSAGES.INVALID_DATA);
+      return false;
+    }
 
-      if (!params.bottle.wine_id || !params.bottle.space_id) {
-        setError('Invalid bottle data');
-        return false;
-      }
-
+    return executeWithBool(async () => {
       const consumptionData: NewConsumption = {
         wine_id: params.bottle.wine_id,
         consumed_by_user_id: user.id,
@@ -37,37 +34,29 @@ export function useConsumption() {
         rating: params.rating,
       };
 
-      const { error: insertError } = await supabase.from('consumptions').insert(consumptionData);
+      const { error: insertError } = await supabase
+        .from(TABLES.CONSUMPTIONS)
+        .insert(consumptionData);
 
       if (insertError) throw insertError;
 
       const { error: deleteError } = await supabase
-        .from('bottle_instances')
+        .from(TABLES.BOTTLES)
         .delete()
         .eq('id', params.bottle.id);
 
       if (deleteError) throw deleteError;
-
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to consume bottle');
-      return false;
-    } finally {
-      setLoading(false);
-    }
+    }, ERROR_MESSAGES.ADD_FAILED('consumption'));
   };
 
   const getConsumptionHistory = async (spaceId?: string): Promise<Consumption[]> => {
-    try {
-      setLoading(true);
-      setError(null);
+    if (!user) {
+      return [];
+    }
 
-      if (!user) {
-        return [];
-      }
-
+    const result = await execute(async () => {
       let query = supabase
-        .from('consumptions')
+        .from(TABLES.CONSUMPTIONS)
         .select(
           `
           *,
@@ -84,12 +73,9 @@ export function useConsumption() {
 
       if (fetchError) throw fetchError;
       return data || [];
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch history');
-      return [];
-    } finally {
-      setLoading(false);
-    }
+    }, ERROR_MESSAGES.FETCH_FAILED('consumption history'));
+
+    return result || [];
   };
 
   return {

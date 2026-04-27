@@ -57,7 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('currentSpaceId');
+      const { STORAGE_KEYS } = await import('@/lib/constants');
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_SPACE_ID);
     }
   };
 

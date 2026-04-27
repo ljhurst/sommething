@@ -266,7 +266,7 @@ describe('useBottles', () => {
       const bottle = await result.current.addBottle(newBottle);
 
       await waitFor(() => {
-        expect(result.current.error).toBe('You must be logged in to add bottles');
+        expect(result.current.error).toBe('You must be logged in to perform this action');
       });
 
       expect(bottle).toBeNull();

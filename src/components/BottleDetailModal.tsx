@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { formatPrice, getWineColor } from '@/lib/utils';
-import { Rating, type BottleInstance } from '@/lib/types';
+import { type WineRating, type BottleInstance } from '@/lib/types';
 
 interface BottleDetailModalProps {
   isOpen: boolean;
   bottle: BottleInstance | null;
   onClose: () => void;
-  onConsume: (bottleId: string, notes?: string, rating?: Rating) => Promise<void>;
+  onConsume: (bottleId: string, notes?: string, rating?: WineRating) => Promise<void>;
   onNavigate?: (direction: 'prev' | 'next') => void;
   onEditWine?: (wineId: string) => void;
 }
@@ -23,7 +23,7 @@ export function BottleDetailModal({
 }: BottleDetailModalProps) {
   const [showConsumeForm, setShowConsumeForm] = useState(false);
   const [consumeNotes, setConsumeNotes] = useState('');
-  const [consumeRating, setConsumeRating] = useState<Rating | undefined>();
+  const [consumeRating, setConsumeRating] = useState<number | undefined>();
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -44,7 +44,11 @@ export function BottleDetailModal({
   const handleConsume = async () => {
     setSubmitting(true);
     try {
-      await onConsume(bottle.id, consumeNotes || undefined, consumeRating);
+      const rating =
+        consumeRating !== undefined
+          ? { score: consumeRating, date: new Date().toISOString() }
+          : undefined;
+      await onConsume(bottle.id, consumeNotes || undefined, rating);
       setConsumeNotes('');
       setConsumeRating(undefined);
       setShowConsumeForm(false);
@@ -182,13 +186,9 @@ export function BottleDetailModal({
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    onClick={() =>
-                      setConsumeRating(
-                        consumeRating === Rating.THUMBS_UP ? undefined : Rating.THUMBS_UP
-                      )
-                    }
+                    onClick={() => setConsumeRating(consumeRating === 85 ? undefined : 85)}
                     className={`flex-1 px-4 py-3 rounded-lg border-2 transition-colors flex items-center justify-center ${
-                      consumeRating === Rating.THUMBS_UP
+                      consumeRating === 85
                         ? 'border-green-500 bg-green-50 text-green-700'
                         : 'border-gray-300 hover:border-green-500 text-gray-700'
                     }`}
@@ -197,13 +197,9 @@ export function BottleDetailModal({
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      setConsumeRating(
-                        consumeRating === Rating.THUMBS_DOWN ? undefined : Rating.THUMBS_DOWN
-                      )
-                    }
+                    onClick={() => setConsumeRating(consumeRating === 50 ? undefined : 50)}
                     className={`flex-1 px-4 py-3 rounded-lg border-2 transition-colors flex items-center justify-center ${
-                      consumeRating === Rating.THUMBS_DOWN
+                      consumeRating === 50
                         ? 'border-red-500 bg-red-50 text-red-700'
                         : 'border-gray-300 hover:border-red-500 text-gray-700'
                     }`}
