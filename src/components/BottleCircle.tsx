@@ -6,9 +6,10 @@ import type { BottleInstance } from '@/lib/types';
 interface BottleCircleProps {
   bottle: BottleInstance;
   onClick: () => void;
+  isOver?: boolean;
 }
 
-export function BottleCircle({ bottle, onClick }: BottleCircleProps) {
+export function BottleCircle({ bottle, onClick, isOver = false }: BottleCircleProps) {
   const wine = bottle.wine;
   if (!wine) return null;
 
@@ -22,7 +23,9 @@ export function BottleCircle({ bottle, onClick }: BottleCircleProps) {
 
       <button
         onClick={onClick}
-        className="w-full aspect-square rounded-full transition-transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-wine-red focus:ring-offset-2"
+        className={`w-full aspect-square rounded-full transition-all hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-wine-red focus:ring-offset-2 ${
+          isOver ? 'ring-4 ring-wine-red scale-95' : ''
+        }`}
         style={{ backgroundColor: color }}
         aria-label={`${wine.winery} ${wine.name}`}
       >

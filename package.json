@@ -27,6 +27,9 @@
     ]
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@react-three/drei": "latest",
     "@react-three/fiber": "^9.5.0",
     "@supabase/supabase-js": "^2.47.10",
