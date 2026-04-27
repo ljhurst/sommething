@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseOperation } from './useSupabaseQuery';
 import { TABLES, ERROR_MESSAGES } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/errorHandling';
+import { getUserEmail } from '@/lib/userUtils';
 import type { BottleInstance, NewBottleInstance, UpdateBottleInstance } from '@/lib/types';
 
 export function useBottles(spaceId?: string) {
@@ -34,7 +35,17 @@ export function useBottles(spaceId?: string) {
         .order('slot_position', { ascending: true });
 
       if (fetchError) throw fetchError;
-      setBottles(data || []);
+
+      const bottlesWithUsers = await Promise.all(
+        (data || []).map(async (bottle) => ({
+          ...bottle,
+          added_by: bottle.added_by_user_id
+            ? await getUserEmail(bottle.added_by_user_id, user)
+            : undefined,
+        }))
+      );
+
+      setBottles(bottlesWithUsers);
     } catch (err) {
       setError(getErrorMessage(err, ERROR_MESSAGES.FETCH_FAILED('bottles')));
     } finally {
@@ -52,7 +63,10 @@ export function useBottles(spaceId?: string) {
       return execute(async () => {
         const { data, error: insertError } = await supabase
           .from(TABLES.BOTTLES)
-          .insert(bottle)
+          .insert({
+            ...bottle,
+            added_by_user_id: user.id,
+          })
           .select(
             `
           *,

@@ -33,6 +33,7 @@ describe('useConsumption', () => {
     space_id: 'space-1',
     slot_position: 1,
     added_at: '2024-01-01T00:00:00Z',
+    added_by_user_id: 'user-1',
     wine: {
       id: 'wine-1',
       created_by_user_id: 'user-123',

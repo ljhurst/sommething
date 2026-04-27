@@ -84,13 +84,14 @@ The database uses a **normalized relational schema** that separates wine vintage
 
 **Purpose**: Physical bottles in specific spaces
 
-| Column        | Type        | Description                         |
-| ------------- | ----------- | ----------------------------------- |
-| id            | UUID (PK)   | Unique identifier                   |
-| wine_id       | UUID (FK)   | Wine vintage this bottle represents |
-| space_id      | UUID (FK)   | Where this bottle is stored         |
-| slot_position | INTEGER     | Position in space grid              |
-| added_at      | TIMESTAMPTZ | When added to space                 |
+| Column           | Type        | Description                         |
+| ---------------- | ----------- | ----------------------------------- |
+| id               | UUID (PK)   | Unique identifier                   |
+| wine_id          | UUID (FK)   | Wine vintage this bottle represents |
+| space_id         | UUID (FK)   | Where this bottle is stored         |
+| slot_position    | INTEGER     | Position in space grid              |
+| added_by_user_id | UUID (FK)   | User who added this bottle          |
+| added_at         | TIMESTAMPTZ | When added to space                 |
 
 **Unique**: (space_id, slot_position) - one bottle per slot
 
@@ -116,16 +117,21 @@ All tables have RLS enabled. Key principles:
 
 **Critical**: Policies must avoid circular dependencies to prevent infinite recursion errors.
 
-**Safe Order**:
+**Solution**: Use `SECURITY DEFINER` functions to break circular references:
 
-1. `spaces` - checks only ownership (`owner_user_id = auth.uid()`)
-2. `space_members` - checks `spaces` ownership OR self (`user_id = auth.uid()`)
-3. Other tables - can safely query `space_members`
+```sql
+-- Check membership without triggering RLS (migration 021)
+is_space_member(space_id UUID, user_id UUID) RETURNS BOOLEAN
+
+-- Get user emails securely (migration 019)
+get_user_email(user_id UUID) RETURNS TEXT
+get_user_id_by_email(user_email TEXT) RETURNS UUID
+```
 
 ### spaces
 
-- **SELECT**: Users see spaces they own
-- **INSERT**: Users can create their own spaces
+- **SELECT**: Users see spaces they own OR are members of (via `is_space_member()`)
+- **INSERT**: Users can create their own spaces (auto-added to space_members)
 - **UPDATE/DELETE**: Only space owners
 
 ### space_members
@@ -154,7 +160,7 @@ All tables have RLS enabled. Key principles:
 
 ### From Old Schema (bottles, consumption_history)
 
-The migration process (migrations 007-016):
+The migration process:
 
 1. **007**: Create new normalized tables
 2. **008**: Migrate data (creates default space per user, deduplicates wines)
@@ -162,6 +168,7 @@ The migration process (migrations 007-016):
 4. **012**: Ensure all users have a default space
 5. **013**: Trigger to auto-create space for new users
 6. **016**: Working RLS policies (no recursion)
+7. **017-021**: Space sharing feature (fixed RLS, added attribution, security functions)
 
 ### Data Transformation
 

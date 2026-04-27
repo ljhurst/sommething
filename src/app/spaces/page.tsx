@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { CreateSpaceModal } from '@/components/CreateSpaceModal';
+import { ShareSpaceModal } from '@/components/ShareSpaceModal';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrentSpace } from '@/hooks/useCurrentSpace';
 import { getSpaceTypeIcon } from '@/lib/utils';
-import type { NewSpace } from '@/lib/types';
+import type { NewSpace, Space } from '@/lib/types';
 
 export default function SpacesPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function SpacesPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<string | null>(null);
+  const [sharingSpace, setSharingSpace] = useState<Space | null>(null);
 
   const handleCreateSpace = async (space: Omit<NewSpace, 'owner_user_id'>) => {
     await addSpace(space as NewSpace);
@@ -138,20 +140,29 @@ export default function SpacesPage() {
                       >
                         View Space
                       </button>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setEditingSpace(space.id)}
-                          className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSpace(space.id, space.name)}
-                          className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      {user?.id === space.owner_user_id && (
+                        <div className="grid grid-cols-3 gap-2">
+                          <button
+                            onClick={() => setSharingSpace(space)}
+                            className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                            title="Share space"
+                          >
+                            Share
+                          </button>
+                          <button
+                            onClick={() => setEditingSpace(space.id)}
+                            className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSpace(space.id, space.name)}
+                            className="px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -172,6 +183,14 @@ export default function SpacesPage() {
             onClose={() => setEditingSpace(null)}
             onSubmit={(space) => handleEditSpace(editingSpace, space)}
             initialData={spaces.find((s) => s.id === editingSpace)}
+          />
+        )}
+
+        {sharingSpace && (
+          <ShareSpaceModal
+            isOpen={true}
+            space={sharingSpace}
+            onClose={() => setSharingSpace(null)}
           />
         )}
       </main>

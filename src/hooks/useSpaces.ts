@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseOperation } from './useSupabaseQuery';
 import { TABLES, ERROR_MESSAGES } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/errorHandling';
+import { getUserEmail } from '@/lib/userUtils';
 import type { Space, SpaceMember, NewSpace, UpdateSpace } from '@/lib/types';
 
 export function useSpaces() {
@@ -124,12 +125,21 @@ export function useSpaces() {
           .eq('space_id', spaceId);
 
         if (fetchError) throw fetchError;
-        return data || [];
+
+        const membersWithUsers = await Promise.all(
+          (data || []).map(async (member) => ({
+            ...member,
+            user: await getUserEmail(member.user_id, user),
+          }))
+        );
+
+        return membersWithUsers;
       }, ERROR_MESSAGES.FETCH_FAILED('space members'));
 
       return result || [];
     },
-    [execute]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [execute, user?.id, user?.email]
   );
 
   const addSpaceMember = useCallback(
@@ -179,6 +189,46 @@ export function useSpaces() {
     [executeWithBool]
   );
 
+  const inviteMemberByEmail = useCallback(
+    async (
+      spaceId: string,
+      email: string,
+      role: 'editor' | 'viewer' = 'editor'
+    ): Promise<{ success: boolean; error?: string }> => {
+      try {
+        setError(null);
+
+        const trimmedEmail = email.trim().toLowerCase();
+        if (!trimmedEmail) {
+          return { success: false, error: 'Email is required' };
+        }
+
+        const { data: userId, error: userError } = await supabase.rpc('get_user_id_by_email', {
+          user_email: trimmedEmail,
+        });
+
+        if (userError || !userId) {
+          return {
+            success: false,
+            error: 'User not found. They need to create an account first.',
+          };
+        }
+
+        const success = await addSpaceMember(spaceId, userId, role);
+        if (!success) {
+          return { success: false, error: 'Failed to add member. They may already be a member.' };
+        }
+
+        return { success: true };
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Failed to invite member';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
+    },
+    [addSpaceMember, setError]
+  );
+
   useEffect(() => {
     fetchSpaces();
   }, [fetchSpaces]);
@@ -196,5 +246,6 @@ export function useSpaces() {
     addSpaceMember,
     updateSpaceMember,
     removeSpaceMember,
+    inviteMemberByEmail,
   };
 }

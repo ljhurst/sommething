@@ -67,6 +67,7 @@ describe('Wine Utilities', () => {
           space_id: 'space-1',
           slot_position: 1,
           added_at: new Date().toISOString(),
+          added_by_user_id: 'user-1',
         },
         {
           id: '2',
@@ -74,6 +75,7 @@ describe('Wine Utilities', () => {
           space_id: 'space-1',
           slot_position: 5,
           added_at: new Date().toISOString(),
+          added_by_user_id: 'user-1',
         },
       ];
 
@@ -94,6 +96,7 @@ describe('Wine Utilities', () => {
         space_id: 'space-1',
         slot_position: 5,
         added_at: new Date().toISOString(),
+        added_by_user_id: 'user-1',
       },
     ];
 
@@ -115,6 +118,7 @@ describe('Wine Utilities', () => {
         space_id: 'space-1',
         slot_position: 5,
         added_at: '2024-01-01T00:00:00Z',
+        added_by_user_id: 'user-1',
       },
       {
         id: '2',
@@ -122,6 +126,7 @@ describe('Wine Utilities', () => {
         space_id: 'space-1',
         slot_position: 12,
         added_at: '2024-01-01T00:00:00Z',
+        added_by_user_id: 'user-1',
       },
     ];
 

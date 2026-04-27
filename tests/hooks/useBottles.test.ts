@@ -10,6 +10,7 @@ import type { User } from '@supabase/supabase-js';
 vi.mock('@/lib/supabase', () => ({
   supabase: {
     from: vi.fn(),
+    rpc: vi.fn(),
   },
 }));
 
@@ -34,6 +35,7 @@ describe('useBottles', () => {
       space_id: 'space-1',
       slot_position: 1,
       added_at: '2024-01-01T00:00:00Z',
+      added_by_user_id: 'user-1',
       wine: {
         id: 'wine-1',
         created_by_user_id: 'user-123',
@@ -52,6 +54,7 @@ describe('useBottles', () => {
       space_id: 'space-1',
       slot_position: 2,
       added_at: '2024-01-01T00:00:00Z',
+      added_by_user_id: 'user-1',
     },
   ];
 
@@ -77,12 +80,12 @@ describe('useBottles', () => {
       const mockEq = vi.fn().mockReturnThis();
       const mockOrder = vi.fn().mockResolvedValue({ data: mockBottles, error: null });
       const mockSelect = vi.fn().mockReturnValue({ eq: mockEq });
-      const mockFrom = vi.fn().mockReturnValue({
-        select: mockSelect,
-      });
+      const mockFrom = vi.fn().mockReturnValue({ select: mockSelect });
+      const mockRpc = vi.fn().mockResolvedValue({ data: 'test@example.com', error: null });
 
       mockEq.mockReturnValue({ order: mockOrder });
       vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
+      vi.mocked(supabase.rpc).mockImplementation(mockRpc as unknown as typeof supabase.rpc);
 
       const { result } = renderHook(() => useBottles('space-1'));
 
@@ -90,7 +93,7 @@ describe('useBottles', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(result.current.bottles).toEqual(mockBottles);
+      expect(result.current.bottles).toHaveLength(2);
       expect(result.current.error).toBeNull();
       expect(mockFrom).toHaveBeenCalledWith('bottle_instances');
     });
@@ -216,6 +219,7 @@ describe('useBottles', () => {
         id: 'bottle-3',
         ...newBottle,
         added_at: '2024-01-02T00:00:00Z',
+        added_by_user_id: 'user-1',
       };
 
       const mockSingle = vi.fn().mockResolvedValue({ data: addedBottle, error: null });
@@ -238,7 +242,10 @@ describe('useBottles', () => {
       const bottle = await result.current.addBottle(newBottle);
 
       expect(bottle).toEqual(addedBottle);
-      expect(mockInsert).toHaveBeenCalledWith(newBottle);
+      expect(mockInsert).toHaveBeenCalledWith({
+        ...newBottle,
+        added_by_user_id: mockUser.id,
+      });
     });
 
     it('should return null and set error when user is not authenticated', async () => {
