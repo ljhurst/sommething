@@ -1,17 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { CreateSpaceModal } from '@/components/CreateSpaceModal';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrentSpace } from '@/hooks/useCurrentSpace';
 import { getSpaceTypeIcon } from '@/lib/utils';
 import type { NewSpace } from '@/lib/types';
 
 export default function SpacesPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const { spaces, loading, addSpace, updateSpace, deleteSpace } = useSpaces();
+  const { selectSpace } = useCurrentSpace(spaces);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<string | null>(null);
@@ -31,6 +35,14 @@ export default function SpacesPage() {
     if (confirm(`Are you sure you want to delete "${spaceName}"? This cannot be undone.`)) {
       await deleteSpace(spaceId);
     }
+  };
+
+  const handleViewSpace = (spaceId: string) => {
+    selectSpace(spaceId);
+    // Small delay to ensure state updates before navigation
+    setTimeout(() => {
+      router.push('/');
+    }, 10);
   };
 
   return (
@@ -117,19 +129,27 @@ export default function SpacesPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 flex gap-2">
+                    <div className="mt-6 space-y-2">
                       <button
-                        onClick={() => setEditingSpace(space.id)}
-                        className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                        onClick={() => handleViewSpace(space.id)}
+                        className="w-full px-3 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-sm font-medium"
                       >
-                        Edit
+                        View Space
                       </button>
-                      <button
-                        onClick={() => handleDeleteSpace(space.id, space.name)}
-                        className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setEditingSpace(space.id)}
+                          className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSpace(space.id, space.name)}
+                          className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

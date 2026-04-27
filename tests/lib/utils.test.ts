@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { getWineColor, formatPrice, getAvailableSlots, isSlotOccupied } from '@/lib/utils';
-import { WineType, type BottleInstance } from '@/lib/types';
+import {
+  getWineColor,
+  formatPrice,
+  getAvailableSlots,
+  isSlotOccupied,
+  getBottleAtSlot,
+  calculateCapacity,
+  formatCapacity,
+  getSpaceTypeLabel,
+  getSpaceTypeIcon,
+} from '@/lib/utils';
+import { WineType, type BottleInstance, type Space } from '@/lib/types';
 
 describe('Wine Utilities', () => {
   describe('getWineColor', () => {
@@ -94,6 +104,139 @@ describe('Wine Utilities', () => {
     it('should return false for empty slot', () => {
       expect(isSlotOccupied(1, bottles)).toBe(false);
       expect(isSlotOccupied(10, bottles)).toBe(false);
+    });
+  });
+
+  describe('getBottleAtSlot', () => {
+    const mockBottles: BottleInstance[] = [
+      {
+        id: '1',
+        wine_id: 'wine-1',
+        space_id: 'space-1',
+        slot_position: 5,
+        added_at: '2024-01-01T00:00:00Z',
+      },
+      {
+        id: '2',
+        wine_id: 'wine-2',
+        space_id: 'space-1',
+        slot_position: 12,
+        added_at: '2024-01-01T00:00:00Z',
+      },
+    ];
+
+    it('should return bottle at specified slot', () => {
+      const bottle = getBottleAtSlot(5, mockBottles);
+      expect(bottle).toBeDefined();
+      expect(bottle?.id).toBe('1');
+      expect(bottle?.slot_position).toBe(5);
+    });
+
+    it('should return undefined if slot is empty', () => {
+      expect(getBottleAtSlot(1, mockBottles)).toBeUndefined();
+      expect(getBottleAtSlot(24, mockBottles)).toBeUndefined();
+    });
+
+    it('should return undefined for empty bottle array', () => {
+      expect(getBottleAtSlot(1, [])).toBeUndefined();
+    });
+  });
+
+  describe('calculateCapacity', () => {
+    const mockSpace: Space = {
+      id: 'space-1',
+      owner_user_id: 'user-1',
+      name: 'My Fridge',
+      description: 'Test fridge',
+      rows: 6,
+      columns: 4,
+      space_type: 'fridge',
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
+    };
+
+    it('should calculate capacity correctly', () => {
+      const result = calculateCapacity(mockSpace, 12);
+      expect(result.total).toBe(24);
+      expect(result.used).toBe(12);
+      expect(result.percentage).toBe(50);
+    });
+
+    it('should handle zero bottles', () => {
+      const result = calculateCapacity(mockSpace, 0);
+      expect(result.total).toBe(24);
+      expect(result.used).toBe(0);
+      expect(result.percentage).toBe(0);
+    });
+
+    it('should handle full capacity', () => {
+      const result = calculateCapacity(mockSpace, 24);
+      expect(result.total).toBe(24);
+      expect(result.used).toBe(24);
+      expect(result.percentage).toBe(100);
+    });
+
+    it('should round percentage', () => {
+      const result = calculateCapacity(mockSpace, 5);
+      expect(result.percentage).toBe(21);
+    });
+  });
+
+  describe('formatCapacity', () => {
+    it('should format capacity with percentage', () => {
+      expect(formatCapacity(12, 24)).toBe('12/24 (50%)');
+    });
+
+    it('should handle zero used', () => {
+      expect(formatCapacity(0, 24)).toBe('0/24 (0%)');
+    });
+
+    it('should handle full capacity', () => {
+      expect(formatCapacity(24, 24)).toBe('24/24 (100%)');
+    });
+
+    it('should round percentage', () => {
+      expect(formatCapacity(5, 24)).toBe('5/24 (21%)');
+    });
+
+    it('should handle zero total gracefully', () => {
+      expect(formatCapacity(0, 0)).toBe('0/0 (0%)');
+    });
+  });
+
+  describe('getSpaceTypeLabel', () => {
+    it('should return correct label for fridge', () => {
+      expect(getSpaceTypeLabel('fridge')).toBe('Fridge');
+    });
+
+    it('should return correct label for cellar', () => {
+      expect(getSpaceTypeLabel('cellar')).toBe('Cellar');
+    });
+
+    it('should return correct label for rack', () => {
+      expect(getSpaceTypeLabel('rack')).toBe('Rack');
+    });
+
+    it('should return input as fallback for unknown type', () => {
+      expect(getSpaceTypeLabel('custom')).toBe('custom');
+    });
+  });
+
+  describe('getSpaceTypeIcon', () => {
+    it('should return correct icon for fridge', () => {
+      expect(getSpaceTypeIcon('fridge')).toBe('❄️');
+    });
+
+    it('should return correct icon for cellar', () => {
+      expect(getSpaceTypeIcon('cellar')).toBe('🏛️');
+    });
+
+    it('should return correct icon for rack', () => {
+      expect(getSpaceTypeIcon('rack')).toBe('📦');
+    });
+
+    it('should return default icon for unknown type', () => {
+      expect(getSpaceTypeIcon('custom')).toBe('📍');
     });
   });
 });

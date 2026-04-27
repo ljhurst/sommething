@@ -421,13 +421,21 @@ export function calculateWineStats(
 
 ## Implementation Steps
 
-### Phase 1: Add Existing Wine Option (MVP)
+### Phase 1: Add Existing Wine Option (MVP) ✅ COMPLETED
 
-1. Modify `AddBottleModal` to support two modes (new/existing)
-2. Fetch user's wines in modal
-3. Create `WineSelector` component
-4. Update `onSubmit` handler to accept wine ID
-5. Modify `page.tsx` to handle existing wine selection
+1. ✅ Modified `AddBottleModal` to support two modes (select/create)
+2. ✅ Added real-time wine search with debouncing
+3. ✅ Integrated `useWines` hook's `searchWines` function
+4. ✅ Updated `onSubmit` handler to accept wine ID or NewWine
+5. ✅ Modified `page.tsx` `handleAddBottle` to handle both flows
+
+**Implementation Details:**
+
+- Two-tab interface: "Select Existing" (default) and "Create New"
+- Search activates after 2 characters with 300ms debounce
+- Search results show winery, name, year, type, and price
+- Visual selection with border highlight
+- Falls back to create mode when no results found
 
 ### Phase 2: Wine Detail View
 

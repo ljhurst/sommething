@@ -30,7 +30,8 @@ export function useWines() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const getWine = async (id: string): Promise<Wine | null> => {
     try {

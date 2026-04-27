@@ -21,6 +21,7 @@ Sommething is a Progressive Web App that helps you manage your wine collection w
 - **Multi-User Authentication**: Secure user accounts with Supabase Auth
 - **Space Collaboration**: Share your fridge with household members (owner/editor/viewer roles)
 - **Wine Database**: Normalized schema - edit wine details once, updates everywhere
+- **Wine Reuse**: Search existing wines when adding bottles to prevent duplicates
 - **Quick Add**: Tap empty slot → add bottle directly to that position
 - **Smart Search**: Filter by type, winery, price, or score
 - **Consumption Tracking**: Mark bottles as consumed, add tasting notes and ratings
@@ -141,7 +142,7 @@ supabase/migrations/        # Database migrations
 
 ## Testing
 
-31 unit tests covering utilities, components, and analytics. Run with `npm test`.
+125 unit tests covering utilities, components, hooks, and analytics. Run with `npm test`.
 
 See [Local Testing Guide](docs/setup/LOCAL_TESTING_GUIDE.md) for details.
 

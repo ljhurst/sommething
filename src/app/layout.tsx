@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Inter } from 'next/font/google';
 import { registerServiceWorker } from '@/lib/pwa';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { UpdateNotification } from '@/components/UpdateNotification';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -40,7 +41,10 @@ export default function RootLayout({
         <title>Sommething - Wine Fridge Tracker</title>
       </head>
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <UpdateNotification />
+        </AuthProvider>
       </body>
     </html>
   );
