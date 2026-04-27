@@ -52,10 +52,12 @@ export default function SpacesPage() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <Header onMenuClick={() => setSidebarOpen(true)} />
 
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">My Spaces</h2>
-              <p className="text-gray-600">Manage your wine storage locations</p>
+              <p className="text-gray-600">
+                {spaces.length} space{spaces.length !== 1 ? 's' : ''} in your collection
+              </p>
             </div>
             {user && (
               <button

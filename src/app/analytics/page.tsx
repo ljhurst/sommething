@@ -3,20 +3,49 @@
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
-import { useBottles } from '@/hooks/useBottles';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import { useConsumption } from '@/hooks/useConsumption';
 import { calculateAnalytics, type AnalyticsData } from '@/lib/analytics';
 import { formatPrice, getWineColor } from '@/lib/utils';
-import type { Consumption, BottleData } from '@/lib/types';
+import type { Consumption, BottleData, BottleInstance } from '@/lib/types';
 
 export default function AnalyticsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { bottles, loading } = useBottles();
+  const { user } = useAuth();
+  const [bottles, setBottles] = useState<BottleInstance[]>([]);
+  const [loading, setLoading] = useState(true);
   const { getConsumptionHistory } = useConsumption();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [showConsumed, setShowConsumed] = useState(false);
   const [consumedBottles, setConsumedBottles] = useState<Consumption[]>([]);
   const [loadingConsumed, setLoadingConsumed] = useState(false);
+
+  useEffect(() => {
+    const fetchAllBottles = async () => {
+      if (!user) {
+        setBottles([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const { data } = await supabase
+        .from('bottle_instances')
+        .select(
+          `
+          *,
+          wine:wines(*)
+        `
+        )
+        .order('slot_position', { ascending: true });
+
+      setBottles(data || []);
+      setLoading(false);
+    };
+
+    fetchAllBottles();
+  }, [user]);
 
   useEffect(() => {
     if (showConsumed && consumedBottles.length === 0) {
