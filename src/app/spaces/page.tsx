@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { CreateSpaceModal } from '@/components/CreateSpaceModal';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrentSpace } from '@/hooks/useCurrentSpace';
 import { getSpaceTypeIcon } from '@/lib/utils';
 import type { NewSpace } from '@/lib/types';
 
@@ -14,6 +15,7 @@ export default function SpacesPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { spaces, loading, addSpace, updateSpace, deleteSpace } = useSpaces();
+  const { selectSpace } = useCurrentSpace(spaces);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<string | null>(null);
@@ -36,7 +38,11 @@ export default function SpacesPage() {
   };
 
   const handleViewSpace = (spaceId: string) => {
-    router.push(`/?space=${spaceId}`);
+    selectSpace(spaceId);
+    // Small delay to ensure state updates before navigation
+    setTimeout(() => {
+      router.push('/');
+    }, 10);
   };
 
   return (

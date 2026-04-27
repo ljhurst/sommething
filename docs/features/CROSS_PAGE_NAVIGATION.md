@@ -168,11 +168,7 @@ All validations pass:
    - Show current navigation path
    - Quick access to recent spaces/wines
 
-3. **Deep Linking**
-   - URL parameters for space and bottle selection
-   - Shareable links to specific views
-
-4. **Navigation History**
+3. **Navigation History**
    - Remember last viewed space per session
    - Quick access to recently edited wines
 

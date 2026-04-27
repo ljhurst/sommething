@@ -27,7 +27,6 @@ Sommething is a Progressive Web App that helps you manage your wine collection w
 - **Consumption Tracking**: Mark bottles as consumed, add tasting notes and ratings
 - **Analytics Dashboard**: Insights into your collection and drinking patterns (current + all-time)
 - **Multiple Spaces**: Support for multiple fridges, cellars, or racks per user
-- **Deep Linking**: Share direct links to specific spaces (URL-based navigation)
 - **Offline Support**: PWA works without internet, syncs when connected
 - **Zero Cost**: Built on free tiers (Vercel + Supabase)
 
@@ -143,7 +142,7 @@ supabase/migrations/        # Database migrations
 
 ## Testing
 
-31 unit tests covering utilities, components, and analytics. Run with `npm test`.
+125 unit tests covering utilities, components, hooks, and analytics. Run with `npm test`.
 
 See [Local Testing Guide](docs/setup/LOCAL_TESTING_GUIDE.md) for details.
 

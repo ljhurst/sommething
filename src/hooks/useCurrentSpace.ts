@@ -1,41 +1,38 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Space } from '@/lib/types';
 
 export function useCurrentSpace(spaces: Space[]) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const spaceIdFromUrl = searchParams.get('space');
-  const hasSetDefaultSpace = useRef(false);
-
-  const currentSpace = useMemo(() => {
-    if (spaces.length === 0) return null;
-
-    if (spaceIdFromUrl) {
-      return spaces.find((s) => s.id === spaceIdFromUrl) || null;
-    }
-
-    return spaces[0];
-  }, [spaces, spaceIdFromUrl]);
+  const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (hasSetDefaultSpace.current || spaces.length === 0 || spaceIdFromUrl) return;
+    if (typeof window === 'undefined' || spaces.length === 0) return;
 
-    hasSetDefaultSpace.current = true;
-    const params = new URLSearchParams(window.location.search);
-    params.set('space', spaces[0].id);
-    router.replace(`/?${params.toString()}`, { scroll: false });
-  }, [spaces, spaceIdFromUrl, router]);
+    const stored = localStorage.getItem('currentSpaceId');
+    const storedSpaceExists = stored && spaces.some((s) => s.id === stored);
 
-  const selectSpace = (spaceId: string) => {
-    const params = new URLSearchParams(window.location.search);
-    params.set('space', spaceId);
-    router.push(`/?${params.toString()}`, { scroll: false });
-  };
+    // Only initialize once or when stored space exists
+    if (!isInitialized.current || storedSpaceExists) {
+      if (storedSpaceExists) {
+        setCurrentSpaceId(stored);
+        isInitialized.current = true;
+      } else if (!isInitialized.current && spaces.length > 0) {
+        const firstSpaceId = spaces[0].id;
+        setCurrentSpaceId(firstSpaceId);
+        localStorage.setItem('currentSpaceId', firstSpaceId);
+        isInitialized.current = true;
+      }
+    }
+  }, [spaces]);
 
-  return {
-    currentSpace,
-    currentSpaceId: currentSpace?.id || null,
-    selectSpace,
-  };
+  const selectSpace = useCallback((spaceId: string) => {
+    setCurrentSpaceId(spaceId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentSpaceId', spaceId);
+    }
+  }, []);
+
+  const currentSpace = spaces.find((s) => s.id === currentSpaceId) || null;
+
+  return { currentSpace, currentSpaceId, selectSpace };
 }
