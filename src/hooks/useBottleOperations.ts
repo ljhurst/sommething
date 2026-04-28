@@ -4,7 +4,7 @@ import { useWines } from './useWines';
 import type { NewWine } from '@/lib/types';
 
 export function useBottleOperations(spaceId?: string) {
-  const { bottles, loading, error, addBottle, refetch } = useBottles(spaceId);
+  const { bottles, loading, error, addBottle, updateBottle, refetch } = useBottles(spaceId);
   const { addWine } = useWines();
 
   const addBottleWithWine = useCallback(
@@ -35,6 +35,7 @@ export function useBottleOperations(spaceId?: string) {
     loading,
     error,
     addBottleWithWine,
+    updateBottle,
     refetch,
   };
 }

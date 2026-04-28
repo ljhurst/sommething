@@ -18,6 +18,7 @@ Sommething is a Progressive Web App that helps you manage your wine collection w
 ## Features
 
 - **Visual Wine Fridge Grid**: Configurable grid representing your physical fridge (default 4×6 = 24 slots)
+- **Drag-and-Drop Reorganization**: Easily rearrange bottles by dragging them to new slots (desktop & mobile)
 - **Multi-User Authentication**: Secure user accounts with Supabase Auth
 - **Space Collaboration**: Share your fridge with household members (owner/editor/viewer roles)
 - **Wine Database**: Normalized schema - edit wine details once, updates everywhere
@@ -36,6 +37,7 @@ Sommething is a Progressive Web App that helps you manage your wine collection w
 - **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first styling
 - **React Three Fiber** - 3D visualization (desktop)
+- **@dnd-kit** - Drag-and-drop interactions
 - **Framer Motion** - Smooth animations
 - **Supabase** - PostgreSQL database + REST API
 - **Vitest** - Fast unit testing
@@ -134,7 +136,8 @@ src/
     ├── useBottles.ts      # Bottle instance management (space-specific)
     ├── useWines.ts        # Wine vintage CRUD operations
     ├── useSpaces.ts       # Space management + collaboration
-    └── useConsumption.ts  # Consumption tracking
+    ├── useConsumption.ts  # Consumption tracking
+    └── useDragAndDrop.ts  # Drag-and-drop bottle repositioning
 
 tests/                      # Test files (mirrors src/)
 supabase/migrations/        # Database migrations

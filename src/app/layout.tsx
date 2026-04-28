@@ -5,6 +5,8 @@ import { Inter } from 'next/font/google';
 import { registerServiceWorker } from '@/lib/pwa';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { UpdateNotification } from '@/components/UpdateNotification';
+import { Footer } from '@/components/Footer';
+import packageJson from '../../package.json';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -44,6 +46,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <UpdateNotification />
+          <Footer version={packageJson.version} />
         </AuthProvider>
       </body>
     </html>

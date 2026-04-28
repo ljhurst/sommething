@@ -18,6 +18,7 @@ import { useSpaces } from '@/hooks/useSpaces';
 import { useConsumption } from '@/hooks/useConsumption';
 import { useCurrentSpace } from '@/hooks/useCurrentSpace';
 import { useModalState } from '@/hooks/useModalState';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { useAuth } from '@/contexts/AuthContext';
 import type { BottleInstance, NewWine, NewSpace, WineRating, Wine, UpdateWine } from '@/lib/types';
 
@@ -30,11 +31,15 @@ export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const { spaces, loading: spacesLoading, addSpace, getSpaceMembers } = useSpaces();
   const { currentSpace, selectSpace } = useCurrentSpace(spaces);
-  const { bottles, loading, error, addBottleWithWine, refetch } = useBottleOperations(
+  const { bottles, loading, error, addBottleWithWine, updateBottle, refetch } = useBottleOperations(
     currentSpace?.id
   );
   const { updateWine, getWine } = useWines();
   const { consumeBottle } = useConsumption();
+  const { isDragging, handleDragStart, handleDragEnd, handleDragCancel } = useDragAndDrop({
+    bottles,
+    updateBottle,
+  });
 
   const addModal = useModalState();
   const detailModal = useModalState();
@@ -258,6 +263,10 @@ export default function Home() {
                       bottles={bottles}
                       onBottleClick={handleBottleClick}
                       onEmptySlotClick={handleEmptySlotClick}
+                      onDragStart={handleDragStart}
+                      onDragEnd={handleDragEnd}
+                      onDragCancel={handleDragCancel}
+                      isDragging={isDragging}
                     />
                   )}
                 </>

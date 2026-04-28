@@ -25,6 +25,12 @@ Development notes and technical history.
 
 - **[archive/MIGRATION_24_BOTTLES.md](development/archive/MIGRATION_24_BOTTLES.md)** - Historical: Migration from 30-bottle to 24-bottle configuration
 
+### 📚 Technical Documentation
+
+- **[DRAG_AND_DROP.md](DRAG_AND_DROP.md)** - Drag-and-drop feature implementation guide
+- **[REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)** - April 2026 refactoring overview
+- **[testing/TESTING_STRATEGY.md](testing/TESTING_STRATEGY.md)** - Testing approach and coverage strategy
+
 ### ⚙️ CI/CD
 
 Continuous integration and deployment documentation.
