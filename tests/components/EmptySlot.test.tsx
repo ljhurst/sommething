@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { EmptySlot } from '@/components/EmptySlot';
+import { EmptySlot } from '@/components/bottle/EmptySlot';
 
 describe('EmptySlot', () => {
   it('should render with slot number', () => {

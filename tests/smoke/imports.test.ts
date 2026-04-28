@@ -51,11 +51,24 @@ describe('Module Import Smoke Tests', () => {
       expect(typeof module.calculateAnalytics).toBe('function');
     });
 
-    it('should import utils without errors', async () => {
-      const module = await import('@/lib/utils');
+    it('should import wineUtils without errors', async () => {
+      const module = await import('@/lib/wineUtils');
       expect(module.getWineColor).toBeDefined();
+    });
+
+    it('should import formatUtils without errors', async () => {
+      const module = await import('@/lib/formatUtils');
       expect(module.formatPrice).toBeDefined();
+    });
+
+    it('should import bottleUtils without errors', async () => {
+      const module = await import('@/lib/bottleUtils');
       expect(module.getAvailableSlots).toBeDefined();
+    });
+
+    it('should import spaceUtils without errors', async () => {
+      const module = await import('@/lib/spaceUtils');
+      expect(module.calculateCapacity).toBeDefined();
     });
 
     it('should import types without errors', async () => {
@@ -75,18 +88,28 @@ describe('Module Import Smoke Tests', () => {
 
   describe('Components', () => {
     it('should import BottleCircle without errors', async () => {
-      const module = await import('@/components/BottleCircle');
+      const module = await import('@/components/bottle/BottleCircle');
       expect(module.BottleCircle).toBeDefined();
     });
 
     it('should import EmptySlot without errors', async () => {
-      const module = await import('@/components/EmptySlot');
+      const module = await import('@/components/bottle/EmptySlot');
       expect(module.EmptySlot).toBeDefined();
     });
 
     it('should import BottleSlot without errors', async () => {
-      const module = await import('@/components/BottleSlot');
+      const module = await import('@/components/bottle/BottleSlot');
       expect(module.BottleSlot).toBeDefined();
+    });
+
+    it('should import Modal without errors', async () => {
+      const module = await import('@/components/modals/Modal');
+      expect(module.Modal).toBeDefined();
+    });
+
+    it('should import Footer without errors', async () => {
+      const module = await import('@/components/layout/Footer');
+      expect(module.Footer).toBeDefined();
     });
   });
 });

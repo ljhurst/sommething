@@ -9,9 +9,9 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { useState } from 'react';
-import { BottleSlot } from './BottleSlot';
-import { BottleCircle } from './BottleCircle';
-import { getBottleAtSlot } from '@/lib/utils';
+import { BottleSlot } from '../bottle/BottleSlot';
+import { BottleCircle } from '../bottle/BottleCircle';
+import { getBottleAtSlot } from '@/lib/bottleUtils';
 import type { BottleInstance } from '@/lib/types';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 

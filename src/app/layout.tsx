@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 import { Inter } from 'next/font/google';
 import { registerServiceWorker } from '@/lib/pwa';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { UpdateNotification } from '@/components/UpdateNotification';
-import { Footer } from '@/components/Footer';
+import { UpdateNotification } from '@/components/ui/UpdateNotification';
+import { Footer } from '@/components/layout/Footer';
 import packageJson from '../../package.json';
 import './globals.css';
 

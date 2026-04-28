@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
+import { Header } from '@/components/layout/Header';
+import { Sidebar } from '@/components/layout/Sidebar';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useConsumption } from '@/hooks/useConsumption';
 import { calculateAnalytics, type AnalyticsData } from '@/lib/analytics';
-import { formatPrice, getWineColor } from '@/lib/utils';
+import { formatPrice } from '@/lib/formatUtils';
+import { getWineColor } from '@/lib/wineUtils';
 import type { Consumption, BottleData, BottleInstance } from '@/lib/types';
 
 export default function AnalyticsPage() {

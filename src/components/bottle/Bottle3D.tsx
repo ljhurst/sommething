@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { Mesh } from 'three';
-import { getWineColor } from '@/lib/utils';
+import { getWineColor } from '@/lib/wineUtils';
 import type { BottleInstance } from '@/lib/types';
 
 interface Bottle3DProps {

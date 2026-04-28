@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { Space } from '@/lib/types';
-import { formatCapacity } from '@/lib/utils';
+import { formatCapacity } from '@/lib/spaceUtils';
 import { getSpaceTypeIcon } from '@/components/icons/space-icons';
 
 interface SpaceSwitcherProps {

@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import { Bottle3D } from './Bottle3D';
+import { Bottle3D } from '../bottle/Bottle3D';
 import type { BottleInstance } from '@/lib/types';
 
 interface WineFridge3DProps {

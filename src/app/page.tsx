@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
-import { WineFridgeGrid } from '@/components/WineFridgeGrid';
-import { AddBottleModal } from '@/components/AddBottleModal';
-import { BottleDetailModal } from '@/components/BottleDetailModal';
-import { EditWineModal } from '@/components/EditWineModal';
-import { AuthModal } from '@/components/AuthModal';
-import { SpaceSwitcher } from '@/components/SpaceSwitcher';
-import { CreateSpaceModal } from '@/components/CreateSpaceModal';
-import { ShareSpaceModal } from '@/components/ShareSpaceModal';
+import { Header } from '@/components/layout/Header';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { WineFridgeGrid } from '@/components/grid/WineFridgeGrid';
+import { AddBottleModal } from '@/components/modals/AddBottleModal';
+import { BottleDetailModal } from '@/components/modals/BottleDetailModal';
+import { EditWineModal } from '@/components/modals/EditWineModal';
+import { AuthModal } from '@/components/modals/AuthModal';
+import { SpaceSwitcher } from '@/components/space/SpaceSwitcher';
+import { CreateSpaceModal } from '@/components/modals/CreateSpaceModal';
+import { ShareSpaceModal } from '@/components/modals/ShareSpaceModal';
 import { useBottleOperations } from '@/hooks/useBottleOperations';
 import { useWines } from '@/hooks/useWines';
 import { useSpaces } from '@/hooks/useSpaces';
@@ -24,7 +24,7 @@ import { WineGlassIcon } from '@/components/icons';
 import type { BottleInstance, NewWine, NewSpace, WineRating, Wine, UpdateWine } from '@/lib/types';
 
 const WineFridge3D = dynamic(
-  () => import('@/components/WineFridge3D').then((mod) => ({ default: mod.WineFridge3D })),
+  () => import('@/components/grid/WineFridge3D').then((mod) => ({ default: mod.WineFridge3D })),
   { ssr: false }
 );
 
