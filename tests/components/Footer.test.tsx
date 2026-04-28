@@ -5,7 +5,8 @@ import { Footer } from '@/components/Footer';
 describe('Footer', () => {
   it('renders attribution text', () => {
     render(<Footer version="1.0.0" />);
-    expect(screen.getByText(/Made with ❤️ by lessthanthree/i)).toBeInTheDocument();
+    expect(screen.getByText(/Made with/i)).toBeInTheDocument();
+    expect(screen.getByText(/by lessthanthree/i)).toBeInTheDocument();
   });
 
   it('displays version number', () => {

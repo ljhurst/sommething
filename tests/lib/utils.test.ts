@@ -8,7 +8,7 @@ import {
   calculateCapacity,
   formatCapacity,
   getSpaceTypeLabel,
-  getSpaceTypeIcon,
+  getSpaceTypeIconName,
 } from '@/lib/utils';
 import { WineType, type BottleInstance, type Space } from '@/lib/types';
 
@@ -227,21 +227,21 @@ describe('Wine Utilities', () => {
     });
   });
 
-  describe('getSpaceTypeIcon', () => {
-    it('should return correct icon for fridge', () => {
-      expect(getSpaceTypeIcon('fridge')).toBe('❄️');
+  describe('getSpaceTypeIconName', () => {
+    it('should return correct icon name for fridge', () => {
+      expect(getSpaceTypeIconName('fridge')).toBe('snowflake');
     });
 
-    it('should return correct icon for cellar', () => {
-      expect(getSpaceTypeIcon('cellar')).toBe('🏛️');
+    it('should return correct icon name for cellar', () => {
+      expect(getSpaceTypeIconName('cellar')).toBe('building');
     });
 
-    it('should return correct icon for rack', () => {
-      expect(getSpaceTypeIcon('rack')).toBe('📦');
+    it('should return correct icon name for rack', () => {
+      expect(getSpaceTypeIconName('rack')).toBe('archive');
     });
 
-    it('should return default icon for unknown type', () => {
-      expect(getSpaceTypeIcon('custom')).toBe('📍');
+    it('should return default icon name for unknown type', () => {
+      expect(getSpaceTypeIconName('custom')).toBe('mapPin');
     });
   });
 });

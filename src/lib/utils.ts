@@ -60,11 +60,11 @@ export function getSpaceTypeLabel(type: string): string {
   return labels[type] || type;
 }
 
-export function getSpaceTypeIcon(type: string): string {
+export function getSpaceTypeIconName(type: string): string {
   const icons: Record<string, string> = {
-    fridge: '❄️',
-    cellar: '🏛️',
-    rack: '📦',
+    fridge: 'snowflake',
+    cellar: 'building',
+    rack: 'archive',
   };
-  return icons[type] || '📍';
+  return icons[type] || 'mapPin';
 }

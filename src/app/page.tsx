@@ -20,6 +20,7 @@ import { useCurrentSpace } from '@/hooks/useCurrentSpace';
 import { useModalState } from '@/hooks/useModalState';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { useAuth } from '@/contexts/AuthContext';
+import { WineGlassIcon } from '@/components/icons';
 import type { BottleInstance, NewWine, NewSpace, WineRating, Wine, UpdateWine } from '@/lib/types';
 
 const WineFridge3D = dynamic(
@@ -227,7 +228,9 @@ export default function Home() {
               {spaces.length === 0 ? (
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center max-w-md">
-                    <div className="text-6xl mb-6">🍷</div>
+                    <div className="flex justify-center mb-6">
+                      <WineGlassIcon className="w-16 h-16 text-wine-red" />
+                    </div>
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">
                       Create Your First Space
                     </h2>

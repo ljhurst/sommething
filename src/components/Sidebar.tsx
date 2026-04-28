@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { HomeIcon, MapPinIcon, WineGlassIcon, ChartBarIcon } from '@/components/icons';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,21 +24,30 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   const navItems = [
-    { href: '/', icon: '🏠', label: 'Home' },
-    { href: '/spaces', icon: '📍', label: 'Spaces' },
-    { href: '/wines', icon: '🍷', label: 'Wines' },
-    { href: '/analytics', icon: '📊', label: 'Analytics' },
+    { href: '/', icon: <HomeIcon />, label: 'Home' },
+    { href: '/spaces', icon: <MapPinIcon />, label: 'Spaces' },
+    { href: '/wines', icon: <WineGlassIcon />, label: 'Wines' },
+    { href: '/analytics', icon: <ChartBarIcon />, label: 'Analytics' },
   ];
 
   return (
     <>
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-          aria-hidden="true"
-        />
+        <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />
       )}
 
       <aside
@@ -76,7 +86,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       isActive ? 'bg-wine-red text-white' : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="text-xl">{item.icon}</span>
+                    {item.icon}
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 </li>
