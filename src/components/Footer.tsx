@@ -1,3 +1,5 @@
+import { HeartIcon } from '@/components/icons';
+
 interface FooterProps {
   version: string;
 }
@@ -6,7 +8,9 @@ export function Footer({ version }: FooterProps) {
   return (
     <footer className="w-full py-4 px-4 text-center text-xs text-gray-500 bg-white border-t border-gray-100">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-        <span>Made with ❤️ by lessthanthree</span>
+        <span className="flex items-center gap-1">
+          Made with <HeartIcon className="w-3 h-3 text-red-500" /> by lessthanthree
+        </span>
         <span className="hidden sm:inline">•</span>
         <span>v{version}</span>
         <span className="hidden sm:inline">•</span>

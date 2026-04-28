@@ -20,8 +20,10 @@ export function Modal({
   preventClose = false,
 }: ModalProps) {
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && !preventClose) {
+      if (e.key === 'Escape' && !preventClose) {
         onClose();
       }
     };
@@ -46,10 +48,12 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 sm:p-4"
       onClick={handleBackdropClick}
     >
-      <div className={`bg-white rounded-lg ${maxWidthClass} w-full max-h-[90vh] overflow-y-auto`}>
+      <div
+        className={`bg-white rounded-t-2xl sm:rounded-2xl ${maxWidthClass} w-full max-h-[90vh] overflow-y-auto`}
+      >
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">{title}</h2>
           <button

@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { Space } from '@/lib/types';
-import { getSpaceTypeIcon, formatCapacity } from '@/lib/utils';
+import { formatCapacity } from '@/lib/utils';
+import { getSpaceTypeIcon } from '@/components/icons/space-icons';
 
 interface SpaceSwitcherProps {
   spaces: Space[];
@@ -58,11 +59,9 @@ export function SpaceSwitcher({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+        className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
       >
-        <span className="text-lg">
-          {currentSpace ? getSpaceTypeIcon(currentSpace.space_type) : '📍'}
-        </span>
+        {currentSpace ? getSpaceTypeIcon(currentSpace.space_type) : getSpaceTypeIcon('default')}
         <span className="hidden sm:inline text-gray-900">
           {currentSpace?.name || 'Select Space'}
         </span>
@@ -93,15 +92,13 @@ export function SpaceSwitcher({
                 <button
                   key={space.id}
                   onClick={() => handleSelectSpace(space.id)}
-                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                  className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 text-gray-700 ${
                     isSelected ? 'bg-wine-red/5' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <span className="text-lg flex-shrink-0">
-                        {getSpaceTypeIcon(space.space_type)}
-                      </span>
+                      <div className="flex-shrink-0">{getSpaceTypeIcon(space.space_type)}</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-900 truncate">{space.name}</span>

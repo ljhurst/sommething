@@ -9,7 +9,7 @@ import { ShareSpaceModal } from '@/components/ShareSpaceModal';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrentSpace } from '@/hooks/useCurrentSpace';
-import { getSpaceTypeIcon } from '@/lib/utils';
+import { getSpaceTypeIcon } from '@/components/icons/space-icons';
 import type { NewSpace, Space } from '@/lib/types';
 
 export default function SpacesPage() {
@@ -112,7 +112,7 @@ export default function SpacesPage() {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl">{getSpaceTypeIcon(space.space_type)}</span>
+                        <div>{getSpaceTypeIcon(space.space_type, 'w-12 h-12 text-gray-700')}</div>
                         <div>
                           <h3 className="font-bold text-gray-900">{space.name}</h3>
                           <p className="text-sm text-gray-500 capitalize">{space.space_type}</p>
