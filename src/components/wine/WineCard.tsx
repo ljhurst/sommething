@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Wine } from '@/lib/types';
-import { getWineColor, formatPrice } from '@/lib/utils';
+import { getWineColor } from '@/lib/wineUtils';
+import { formatPrice } from '@/lib/formatUtils';
 
 interface WineCardProps {
   wine: Wine;

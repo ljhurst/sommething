@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Modal } from './Modal';
-import { formatPrice, getWineColor } from '@/lib/utils';
+import { getWineColor } from '@/lib/wineUtils';
+import { formatPrice } from '@/lib/formatUtils';
 import { type WineRating, type BottleInstance } from '@/lib/types';
 
 interface BottleDetailModalProps {

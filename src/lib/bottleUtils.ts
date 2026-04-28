@@ -1,0 +1,18 @@
+import type { BottleInstance } from './types';
+
+export function getAvailableSlots(bottles: BottleInstance[]): number[] {
+  const occupiedSlots = new Set(bottles.map((b) => b.slot_position));
+  const allSlots = Array.from({ length: 24 }, (_, i) => i + 1);
+  return allSlots.filter((slot) => !occupiedSlots.has(slot));
+}
+
+export function isSlotOccupied(slot: number, bottles: BottleInstance[]): boolean {
+  return bottles.some((b) => b.slot_position === slot);
+}
+
+export function getBottleAtSlot(
+  slot: number,
+  bottles: BottleInstance[]
+): BottleInstance | undefined {
+  return bottles.find((b) => b.slot_position === slot);
+}

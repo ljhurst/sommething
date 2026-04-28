@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
-import { WineCard } from '@/components/WineCard';
-import { AddWineModal } from '@/components/AddWineModal';
-import { EditWineModal } from '@/components/EditWineModal';
+import { Header } from '@/components/layout/Header';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { WineCard } from '@/components/wine/WineCard';
+import { AddWineModal } from '@/components/modals/AddWineModal';
+import { EditWineModal } from '@/components/modals/EditWineModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWines } from '@/hooks/useWines';
 import { WineType } from '@/lib/types';

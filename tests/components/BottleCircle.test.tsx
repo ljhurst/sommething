@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { BottleCircle } from '@/components/BottleCircle';
+import { BottleCircle } from '@/components/bottle/BottleCircle';
 import { WineType, type BottleInstance, type Wine } from '@/lib/types';
 
 describe('BottleCircle', () => {

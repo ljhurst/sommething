@@ -1,6 +1,6 @@
 'use client';
 
-import { getWineColor } from '@/lib/utils';
+import { getWineColor } from '@/lib/wineUtils';
 import type { BottleInstance } from '@/lib/types';
 
 interface BottleCircleProps {

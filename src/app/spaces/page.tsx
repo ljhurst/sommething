@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
-import { CreateSpaceModal } from '@/components/CreateSpaceModal';
-import { ShareSpaceModal } from '@/components/ShareSpaceModal';
+import { Header } from '@/components/layout/Header';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { CreateSpaceModal } from '@/components/modals/CreateSpaceModal';
+import { ShareSpaceModal } from '@/components/modals/ShareSpaceModal';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrentSpace } from '@/hooks/useCurrentSpace';
