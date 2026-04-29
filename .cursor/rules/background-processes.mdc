@@ -1,0 +1,59 @@
+---
+description: Guidelines for managing background processes and system resources
+alwaysApply: true
+---
+
+# Background Process Management
+
+## Check Before Starting Processes
+
+Before starting any dev servers, test watchers, or long-running processes:
+
+1. **Check terminal files** to see if processes are already running:
+   ```bash
+   head -n 10 ~/.cursor/projects/*/terminals/*.txt
+   ```
+
+2. **Look for active processes** in the metadata (pid, cwd, last_command)
+
+3. **Don't start duplicates** - if a dev server or test watcher is already running, use that one
+
+## Default to Foreground
+
+- Run commands in the **foreground by default** (no `is_background: true`)
+- Only use background processes when explicitly needed (long-running dev servers)
+- **Never** run test watchers (`npm run test:watch`, `vitest --watch`) in the background
+
+## Test Execution
+
+```bash
+# ✅ GOOD - runs once and exits
+npm test
+
+# ❌ BAD - watch mode in background (resource intensive)
+npm run test:watch  # in background
+```
+
+## Cleaning Up
+
+When asked to "kill everything" or "stop background processes":
+
+```bash
+# Kill specific processes
+pkill -f vitest
+pkill -f "npm run dev"
+
+# Or be more targeted
+ps aux | grep -E '(vitest|npm run)' | grep -v grep
+# Then kill specific PIDs
+```
+
+## Resource-Intensive Commands
+
+Be especially careful with:
+- Test watchers (vitest, jest with --watch)
+- Multiple dev servers
+- Build watchers
+- File system watchers
+
+These can quickly overwhelm system resources if multiple instances run simultaneously.

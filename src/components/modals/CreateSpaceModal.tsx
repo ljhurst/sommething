@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
+import { Alert } from '@/components/ui/Alert';
+import { ModalActions } from '@/components/forms/ModalActions';
 import type { NewSpace, Space } from '@/lib/types';
 import { getSpaceTypeIcon } from '@/components/icons/space-icons';
 
@@ -109,11 +111,7 @@ export function CreateSpaceModal({
       preventClose={isSubmitting}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -214,29 +212,11 @@ export function CreateSpaceModal({
           )}
         </div>
 
-        <div className="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={isSubmitting}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors font-medium disabled:opacity-50"
-          >
-            {isSubmitting
-              ? isEditing
-                ? 'Updating...'
-                : 'Creating...'
-              : isEditing
-                ? 'Update Space'
-                : 'Create Space'}
-          </button>
-        </div>
+        <ModalActions
+          onCancel={handleClose}
+          submitLabel={isEditing ? 'Update Space' : 'Create Space'}
+          submitting={isSubmitting}
+        />
       </form>
     </Modal>
   );

@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { Button } from '@/components/ui/Button';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { WineFridgeGrid } from '@/components/grid/WineFridgeGrid';
 import { AddBottleModal } from '@/components/modals/AddBottleModal';
 import { BottleDetailModal } from '@/components/modals/BottleDetailModal';
@@ -48,7 +50,6 @@ export default function Home() {
   const authModal = useModalState();
   const createSpaceModal = useModalState();
   const shareSpaceModal = useModalState();
-  const sidebar = useModalState();
 
   const [selectedBottle, setSelectedBottle] = useState<BottleInstance | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
@@ -154,181 +155,144 @@ export default function Home() {
   };
 
   return (
-    <>
-      <Sidebar isOpen={sidebar.isOpen} onClose={sidebar.close} />
-      <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <Header
-            onMenuClick={sidebar.open}
-            showSpaceSwitcher={!!(user && spaces.length > 0)}
-            spaceSwitcher={
-              <div className="flex items-center gap-2">
-                <SpaceSwitcher
-                  spaces={spaces}
-                  currentSpaceId={currentSpace?.id || null}
-                  bottleCounts={bottleCounts}
-                  onSpaceChange={selectSpace}
-                  onCreateNew={createSpaceModal.open}
-                />
-                {currentSpace && user?.id === currentSpace.owner_user_id && (
-                  <button
-                    onClick={shareSpaceModal.open}
-                    className="p-2 text-gray-600 hover:text-wine-red transition-colors"
-                    title="Share space"
-                    aria-label="Share space"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            }
+    <PageLayout
+      showSpaceSwitcher={!!(user && spaces.length > 0)}
+      spaceSwitcher={
+        <div className="flex items-center gap-2">
+          <SpaceSwitcher
+            spaces={spaces}
+            currentSpaceId={currentSpace?.id || null}
+            bottleCounts={bottleCounts}
+            onSpaceChange={selectSpace}
+            onCreateNew={createSpaceModal.open}
           />
-
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-              {error}
-            </div>
+          {currentSpace && user?.id === currentSpace.owner_user_id && (
+            <button
+              onClick={shareSpaceModal.open}
+              className="p-2 text-gray-600 hover:text-wine-red transition-colors"
+              title="Share space"
+              aria-label="Share space"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            </button>
           )}
+        </div>
+      }
+    >
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          {error}
+        </div>
+      )}
 
-          {!user && (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center max-w-md">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to Sommething</h2>
-                <p className="text-gray-600 mb-6">
-                  Track your wine collection with elegance and ease. Sign in to get started.
-                </p>
-                <button
-                  onClick={authModal.open}
-                  className="px-6 py-3 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-lg font-medium"
-                >
-                  Sign In or Create Account
-                </button>
-              </div>
-            </div>
-          )}
+      {!user && (
+        <EmptyState
+          title="Welcome to Sommething"
+          message="Track your wine collection with elegance and ease. Sign in to get started."
+          actionLabel="Sign In or Create Account"
+          onAction={authModal.open}
+        />
+      )}
 
-          {user && (authLoading || loading || spacesLoading) && (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-wine-red mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading your collection...</p>
-              </div>
-            </div>
-          )}
+      {user && (authLoading || loading || spacesLoading) && (
+        <LoadingSpinner message="Loading your collection..." />
+      )}
 
-          {user && !authLoading && !loading && !spacesLoading && (
+      {user && !authLoading && !loading && !spacesLoading && (
+        <>
+          {spaces.length === 0 ? (
+            <EmptyState
+              icon={<WineGlassIcon className="w-16 h-16 text-wine-red" />}
+              title="Create Your First Space"
+              message="Get started by creating a storage space for your wine collection. You can create multiple spaces like fridges, cellars, or racks."
+              actionLabel="Create Your First Space"
+              onAction={createSpaceModal.open}
+            />
+          ) : (
             <>
-              {spaces.length === 0 ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="text-center max-w-md">
-                    <div className="flex justify-center mb-6">
-                      <WineGlassIcon className="w-16 h-16 text-wine-red" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      Create Your First Space
-                    </h2>
-                    <p className="text-gray-600 mb-6">
-                      Get started by creating a storage space for your wine collection. You can
-                      create multiple spaces like fridges, cellars, or racks.
-                    </p>
-                    <button
-                      onClick={createSpaceModal.open}
-                      className="px-6 py-3 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-lg font-medium"
-                    >
-                      Create Your First Space
-                    </button>
-                  </div>
+              {isDesktop && currentSpace && (
+                <div className="flex justify-end mb-4">
+                  <Button onClick={() => setView3D(!view3D)} className="text-sm">
+                    {view3D ? '2D Grid' : '3D View'}
+                  </Button>
                 </div>
-              ) : (
-                <>
-                  {isDesktop && currentSpace && (
-                    <div className="flex justify-end mb-4">
-                      <button
-                        onClick={() => setView3D(!view3D)}
-                        className="px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors text-sm font-medium"
-                      >
-                        {view3D ? '2D Grid' : '3D View'}
-                      </button>
-                    </div>
-                  )}
+              )}
 
-                  {view3D && isDesktop ? (
-                    <WineFridge3D bottles={bottles} onBottleClick={handleBottleClick} />
-                  ) : (
-                    <WineFridgeGrid
-                      bottles={bottles}
-                      onBottleClick={handleBottleClick}
-                      onEmptySlotClick={handleEmptySlotClick}
-                      onDragStart={handleDragStart}
-                      onDragEnd={handleDragEnd}
-                      onDragCancel={handleDragCancel}
-                      isDragging={isDragging}
-                    />
-                  )}
-                </>
+              {view3D && isDesktop ? (
+                <WineFridge3D bottles={bottles} onBottleClick={handleBottleClick} />
+              ) : (
+                <WineFridgeGrid
+                  bottles={bottles}
+                  onBottleClick={handleBottleClick}
+                  onEmptySlotClick={handleEmptySlotClick}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragCancel={handleDragCancel}
+                  isDragging={isDragging}
+                />
               )}
             </>
           )}
-        </div>
+        </>
+      )}
 
-        {currentSpace && (
-          <AddBottleModal
-            isOpen={addModal.isOpen}
-            slotNumber={selectedSlot || 1}
-            spaceId={currentSpace.id}
-            onClose={() => {
-              addModal.close();
-              setSelectedSlot(null);
-            }}
-            onSubmit={handleAddBottle}
-          />
-        )}
-
-        <BottleDetailModal
-          isOpen={detailModal.isOpen}
-          bottle={selectedBottle}
+      {currentSpace && (
+        <AddBottleModal
+          isOpen={addModal.isOpen}
+          slotNumber={selectedSlot || 1}
+          spaceId={currentSpace.id}
           onClose={() => {
-            detailModal.close();
-            setSelectedBottle(null);
+            addModal.close();
+            setSelectedSlot(null);
           }}
-          onConsume={handleConsumeBottle}
-          onEditWine={handleEditWine}
-          userRole={userRole}
+          onSubmit={handleAddBottle}
         />
+      )}
 
-        <EditWineModal
-          isOpen={editWineModal.isOpen}
-          wine={editingWine}
-          onClose={() => {
-            editWineModal.close();
-            setEditingWine(null);
-          }}
-          onSubmit={handleUpdateWine}
+      <BottleDetailModal
+        isOpen={detailModal.isOpen}
+        bottle={selectedBottle}
+        onClose={() => {
+          detailModal.close();
+          setSelectedBottle(null);
+        }}
+        onConsume={handleConsumeBottle}
+        onEditWine={handleEditWine}
+        userRole={userRole}
+      />
+
+      <EditWineModal
+        isOpen={editWineModal.isOpen}
+        wine={editingWine}
+        onClose={() => {
+          editWineModal.close();
+          setEditingWine(null);
+        }}
+        onSubmit={handleUpdateWine}
+      />
+
+      <AuthModal isOpen={authModal.isOpen} onClose={authModal.close} />
+
+      <CreateSpaceModal
+        isOpen={createSpaceModal.isOpen}
+        onClose={createSpaceModal.close}
+        onSubmit={handleCreateSpace}
+      />
+
+      {currentSpace && (
+        <ShareSpaceModal
+          isOpen={shareSpaceModal.isOpen}
+          space={currentSpace}
+          onClose={shareSpaceModal.close}
         />
-
-        <AuthModal isOpen={authModal.isOpen} onClose={authModal.close} />
-
-        <CreateSpaceModal
-          isOpen={createSpaceModal.isOpen}
-          onClose={createSpaceModal.close}
-          onSubmit={handleCreateSpace}
-        />
-
-        {currentSpace && (
-          <ShareSpaceModal
-            isOpen={shareSpaceModal.isOpen}
-            space={currentSpace}
-            onClose={shareSpaceModal.close}
-          />
-        )}
-      </main>
-    </>
+      )}
+    </PageLayout>
   );
 }
