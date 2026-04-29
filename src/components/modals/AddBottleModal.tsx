@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
+import { ModalActions } from '@/components/forms/ModalActions';
+import { WineFormFields, WineFormData } from '@/components/forms/WineFormFields';
 import { WineType, type NewWine, type Wine } from '@/lib/types';
 import { useWines } from '@/hooks/useWines';
 
@@ -26,7 +28,7 @@ export function AddBottleModal({
   const [searchResults, setSearchResults] = useState<Wine[]>([]);
   const [selectedWine, setSelectedWine] = useState<Wine | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<WineFormData>({
     winery: '',
     name: '',
     type: WineType.RED,
@@ -198,139 +200,15 @@ export function AddBottleModal({
             )}
           </>
         ) : (
-          <>
-            <div>
-              <label htmlFor="winery" className="block text-sm font-medium text-gray-700 mb-1">
-                Winery *
-              </label>
-              <input
-                id="winery"
-                type="text"
-                required
-                value={formData.winery}
-                onChange={(e) => setFormData({ ...formData, winery: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
-                placeholder="Château Margaux"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Wine Name *
-              </label>
-              <input
-                id="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
-                placeholder="Margaux"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-                Type *
-              </label>
-              <select
-                id="type"
-                required
-                value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as WineType })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
-              >
-                <option value={WineType.RED}>Red</option>
-                <option value={WineType.WHITE}>White</option>
-                <option value={WineType.ROSE}>Rosé</option>
-                <option value={WineType.SPARKLING}>Sparkling</option>
-                <option value={WineType.DESSERT}>Dessert</option>
-                <option value={WineType.OTHER}>Other</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
-                  Year *
-                </label>
-                <input
-                  id="year"
-                  type="number"
-                  required
-                  min="1900"
-                  max="2100"
-                  value={formData.year}
-                  onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                  Price ($)
-                </label>
-                <input
-                  id="price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
-                  placeholder="Optional"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="score" className="block text-sm font-medium text-gray-700 mb-1">
-                Score (0-100)
-              </label>
-              <input
-                id="score"
-                type="number"
-                min="0"
-                max="100"
-                value={formData.score}
-                onChange={(e) => setFormData({ ...formData, score: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
-                placeholder="Optional"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
-              </label>
-              <textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
-                placeholder="Optional tasting notes or purchase details"
-              />
-            </div>
-          </>
+          <WineFormFields value={formData} onChange={setFormData} disabled={submitting} />
         )}
 
-        <div className="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={submitting || (mode === 'select' && !selectedWine)}
-            className="flex-1 px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? 'Adding...' : 'Add Bottle'}
-          </button>
-        </div>
+        <ModalActions
+          onCancel={onClose}
+          submitLabel="Add Bottle"
+          submitting={submitting}
+          submitDisabled={mode === 'select' && !selectedWine}
+        />
       </form>
     </Modal>
   );

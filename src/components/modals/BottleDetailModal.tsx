@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Modal } from './Modal';
+import { ModalActions } from '@/components/forms/ModalActions';
 import { getWineColor } from '@/lib/wineUtils';
 import { formatPrice } from '@/lib/formatUtils';
 import { type WineRating, type BottleInstance } from '@/lib/types';
@@ -200,26 +201,17 @@ export function BottleDetailModal({
             />
           </div>
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setShowConsumeForm(false);
-                setConsumeNotes('');
-                setConsumeRating(undefined);
-              }}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleConsume}
-              disabled={submitting}
-              className="flex-1 px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Consuming...' : 'Confirm'}
-            </button>
-          </div>
+          <ModalActions
+            onCancel={() => {
+              setShowConsumeForm(false);
+              setConsumeNotes('');
+              setConsumeRating(undefined);
+            }}
+            submitLabel="Confirm"
+            submitType="button"
+            onSubmit={handleConsume}
+            submitting={submitting}
+          />
         </div>
       )}
     </Modal>

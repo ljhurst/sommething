@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Modal } from './Modal';
+import { Button } from '@/components/ui/Button';
+import { Alert } from '@/components/ui/Alert';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Space, SpaceMember } from '@/lib/types';
@@ -147,19 +149,11 @@ export function ShareSpaceModal({ isOpen, space, onClose }: ShareSpaceModalProps
                 </div>
               </div>
 
-              {inviteError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                  {inviteError}
-                </div>
-              )}
+              {inviteError && <Alert variant="error">{inviteError}</Alert>}
 
-              <button
-                type="submit"
-                disabled={inviting || !inviteEmail.trim()}
-                className="w-full px-4 py-2 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-              >
-                {inviting ? 'Inviting...' : 'Send Invite'}
-              </button>
+              <Button type="submit" disabled={!inviteEmail.trim()} loading={inviting} fullWidth>
+                Send Invite
+              </Button>
             </form>
           </div>
         )}
@@ -239,17 +233,18 @@ export function ShareSpaceModal({ isOpen, space, onClose }: ShareSpaceModalProps
               You are a {getRoleIcon(members.find((m) => m.user_id === user?.id)?.role || '')}{' '}
               {members.find((m) => m.user_id === user?.id)?.role} of this space.
             </p>
-            <button
+            <Button
               onClick={() => {
                 const myMember = members.find((m) => m.user_id === user?.id);
                 if (myMember && confirm('Leave this space?')) {
                   removeSpaceMember(myMember.id).then(() => onClose());
                 }
               }}
-              className="w-full px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors font-medium"
+              variant="danger"
+              fullWidth
             >
               Leave Space
-            </button>
+            </Button>
           </div>
         )}
       </div>

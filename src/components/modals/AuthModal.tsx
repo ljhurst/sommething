@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Modal } from './Modal';
+import { Button } from '@/components/ui/Button';
+import { Alert } from '@/components/ui/Alert';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -61,15 +63,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       maxWidth="md"
     >
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+        <Alert variant="error" className="mb-4">
           {error}
-        </div>
+        </Alert>
       )}
 
       {successMessage && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-green-700 text-sm">
+        <Alert variant="success" className="mb-4">
           {successMessage}
-        </div>
+        </Alert>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,13 +107,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {!isLogin && <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters</p>}
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-wine-red text-white py-2 px-4 rounded-lg hover:bg-wine-red/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-        >
-          {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
-        </button>
+        <Button type="submit" loading={loading} fullWidth>
+          {isLogin ? 'Sign In' : 'Sign Up'}
+        </Button>
       </form>
 
       <div className="mt-4 text-center">
