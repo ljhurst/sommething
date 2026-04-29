@@ -117,27 +117,64 @@ See [CI/CD Documentation](.github/workflows/README.md) for all available command
 src/
 ├── app/                    # Next.js App Router pages
 │   ├── page.tsx           # Main wine fridge view
+│   ├── wines/             # Wine library page
+│   ├── spaces/            # Space management page
 │   └── analytics/         # Analytics dashboard
-├── components/             # React components
-│   ├── WineFridgeGrid.tsx # Main grid container
-│   ├── BottleSlot.tsx     # Individual bottle slot
-│   ├── BottleCircle.tsx   # Mobile bottle view (2D)
-│   ├── Bottle3D.tsx       # Desktop 3D bottle
-│   ├── WineFridge3D.tsx   # 3D fridge view
-│   ├── AddBottleModal.tsx # Add wine + bottle form
-│   ├── BottleDetailModal.tsx # Bottle details + consume
-│   └── AuthModal.tsx      # Authentication
+├── components/
+│   ├── ui/                # Reusable UI primitives
+│   │   ├── Button.tsx     # Unified button component
+│   │   ├── Alert.tsx      # Alert messages
+│   │   ├── LoadingSpinner.tsx
+│   │   └── EmptyState.tsx
+│   ├── forms/             # Form components
+│   │   ├── FormInput.tsx
+│   │   ├── FormTextarea.tsx
+│   │   ├── FormSelect.tsx
+│   │   ├── ModalActions.tsx # Cancel/Submit buttons
+│   │   └── WineFormFields.tsx # Wine detail form
+│   ├── layout/            # Layout components
+│   │   ├── PageLayout.tsx # Page wrapper with header/sidebar
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── Footer.tsx
+│   ├── modals/            # Modal dialogs
+│   │   ├── Modal.tsx      # Base modal component
+│   │   ├── AddBottleModal.tsx
+│   │   ├── BottleDetailModal.tsx
+│   │   ├── EditWineModal.tsx
+│   │   └── AuthModal.tsx
+│   ├── grid/              # Wine grid components
+│   │   ├── WineFridgeGrid.tsx
+│   │   └── WineFridge3D.tsx
+│   ├── bottle/            # Bottle display
+│   │   ├── BottleSlot.tsx
+│   │   ├── BottleCircle.tsx # Mobile 2D view
+│   │   ├── Bottle3D.tsx     # Desktop 3D view
+│   │   └── EmptySlot.tsx
+│   ├── wine/              # Wine components
+│   │   └── WineCard.tsx
+│   ├── space/             # Space components
+│   │   └── SpaceSwitcher.tsx
+│   └── icons/             # SVG icon components
 ├── lib/                    # Utilities and helpers
 │   ├── supabase.ts        # Database client
 │   ├── types.ts           # TypeScript types (normalized schema)
-│   ├── utils.ts           # Helper functions
-│   └── analytics.ts       # Analytics calculations
-└── hooks/                  # Custom React hooks
-    ├── useBottles.ts      # Bottle instance management (space-specific)
-    ├── useWines.ts        # Wine vintage CRUD operations
-    ├── useSpaces.ts       # Space management + collaboration
-    ├── useConsumption.ts  # Consumption tracking
-    └── useDragAndDrop.ts  # Drag-and-drop bottle repositioning
+│   ├── constants.ts       # Shared constants
+│   ├── errorHandling.ts   # Error utilities
+│   ├── analytics.ts       # Analytics calculations
+│   └── *Utils.ts          # Domain-specific utilities
+├── hooks/                  # Custom React hooks
+│   ├── useBottles.ts      # Bottle instance management
+│   ├── useWines.ts        # Wine vintage CRUD
+│   ├── useSpaces.ts       # Space management + collaboration
+│   ├── useConsumption.ts  # Consumption tracking
+│   ├── useBottleOperations.ts # Combined bottle+wine ops
+│   ├── useCurrentSpace.ts # Space selection state
+│   ├── useModalState.ts   # Modal state management
+│   ├── useDragAndDrop.ts  # Drag-and-drop repositioning
+│   └── useSupabaseQuery.ts # Base Supabase operations
+└── contexts/               # React contexts
+    └── AuthContext.tsx    # Authentication state
 
 tests/                      # Test files (mirrors src/)
 supabase/migrations/        # Database migrations
@@ -145,7 +182,7 @@ supabase/migrations/        # Database migrations
 
 ## Testing
 
-125 unit tests covering utilities, components, hooks, and analytics. Run with `npm test`.
+183 unit tests covering utilities, components, hooks, and analytics. Run with `npm test`.
 
 See [Local Testing Guide](docs/setup/LOCAL_TESTING_GUIDE.md) for details.
 

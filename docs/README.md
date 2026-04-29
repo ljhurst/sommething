@@ -21,15 +21,22 @@ Product vision, philosophy, and project overview.
 
 ### 🔧 [development/](development/)
 
-Development notes and technical history.
+Development notes, refactoring history, and technical decisions.
 
+- **[COMPONENT_REFACTORING.md](development/COMPONENT_REFACTORING.md)** - April 28, 2026: Component-level refactoring (~753 lines saved)
+- **[LOGGING.md](development/LOGGING.md)** - Structured logging implementation
+- **[LOGGER_EXAMPLES.md](development/LOGGER_EXAMPLES.md)** - Logging usage examples
+- **[BUGFIX_SPACE_SELECTION_LOGOUT.md](development/BUGFIX_SPACE_SELECTION_LOGOUT.md)** - Space selection bug fix
+- **[BUGFIX_VERCEL_DEPLOYMENT.md](development/BUGFIX_VERCEL_DEPLOYMENT.md)** - Vercel deployment fixes
 - **[archive/MIGRATION_24_BOTTLES.md](development/archive/MIGRATION_24_BOTTLES.md)** - Historical: Migration from 30-bottle to 24-bottle configuration
 
 ### 📚 Technical Documentation
 
 - **[DRAG_AND_DROP.md](DRAG_AND_DROP.md)** - Drag-and-drop feature implementation guide
-- **[REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)** - April 2026 refactoring overview
+- **[REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)** - April 26, 2026: Hook/utility refactoring (~400-500 lines saved)
+- **[development/COMPONENT_REFACTORING.md](development/COMPONENT_REFACTORING.md)** - April 28, 2026: Component refactoring (~753 lines saved)
 - **[testing/TESTING_STRATEGY.md](testing/TESTING_STRATEGY.md)** - Testing approach and coverage strategy
+- **[database/SCHEMA.md](database/SCHEMA.md)** - Database schema documentation
 
 ### ⚙️ CI/CD
 

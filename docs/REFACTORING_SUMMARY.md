@@ -1,8 +1,10 @@
-# Refactoring Summary - April 26, 2026
+# Hook & Utility Refactoring - April 26, 2026
+
+> **Note:** This document covers the initial hook/utility refactoring. For the follow-up component-level refactoring (April 28, 2026), see [COMPONENT_REFACTORING.md](development/COMPONENT_REFACTORING.md).
 
 ## Overview
 
-Completed a comprehensive refactoring to eliminate code duplication, fix type issues, and improve maintainability.
+Completed a comprehensive refactoring to eliminate code duplication, fix type issues, and improve maintainability. This phase focused on hooks, utilities, and backend logic.
 
 ## Changes Made
 
@@ -177,3 +179,18 @@ Completed a comprehensive refactoring to eliminate code duplication, fix type is
 ## Testing Strategy
 
 Maintained existing test coverage while updating expectations to match new error messages. All refactorings were validated with existing tests, ensuring no regressions.
+
+---
+
+## Follow-up Refactoring
+
+After this hook/utility refactoring, a component-level refactoring was completed on April 28, 2026. See [COMPONENT_REFACTORING.md](development/COMPONENT_REFACTORING.md) for details on:
+
+- UI component library (Button, Alert, LoadingSpinner, EmptyState)
+- Form components (FormInput, FormTextarea, FormSelect, ModalActions)
+- Domain components (WineFormFields, PageLayout)
+- Icon factory pattern
+- **~753 additional lines saved through component reuse**
+- **58 new tests added** (183 total)
+
+**Combined Impact:** ~1,200 lines eliminated, significantly improved maintainability and consistency.
