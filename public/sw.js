@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sommething-v3';
+const CACHE_NAME = 'sommething-v4';
 const urlsToCache = ['/', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -8,6 +8,12 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
   // Skip caching for non-http(s) requests (chrome-extension, etc.)
   if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
+  const isSupabaseRequest = event.request.url.includes('.supabase.co');
+  if (isSupabaseRequest) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
