@@ -32,7 +32,7 @@ Implemented a complete update detection and notification system that:
 
 **File: `public/sw.js`**
 
-- Version bump: `CACHE_NAME = 'sommething-v3'`
+- Version bump: `CACHE_NAME = 'sommething-v4'`
 - Added `self.clients.claim()` in activate event to take control immediately
 - Old caches are automatically deleted when new version activates
 
@@ -106,19 +106,35 @@ setInterval(() => {
 
 ### Cache Strategy
 
-```javascript
-// Network-first with cache fallback
-fetch(request)
-  .then(cache)
-  .catch(() => serveCached);
-```
+The service worker uses different caching strategies for different types of requests:
+
+**Supabase API Requests** (Network-Only):
+
+- All requests to `.supabase.co` bypass the cache completely
+- Always fetch fresh data from the network
+- Ensures users see up-to-date bottles, consumption history, and other data
+- No stale data issues on PWA
+
+**Static Assets** (Cache-First):
+
+- HTML, CSS, JavaScript, images, fonts
+- Check cache first for instant loading
+- Fall back to network if not cached
+- Cache the response for future use
+- Provides fast offline support
+
+**Offline Behavior**:
+
+- Static assets load from cache when offline
+- API calls fail gracefully when no network available
+- Users can browse cached pages but can't fetch new data
 
 ### Version Management
 
 To deploy a new version:
 
 1. Make code changes
-2. Increment `CACHE_NAME` in `public/sw.js` (e.g., `v3` → `v4`)
+2. Increment `CACHE_NAME` in `public/sw.js` (e.g., `v4` → `v5`)
 3. Deploy to Vercel
 4. Users will see update notification within 60 seconds
 
@@ -180,11 +196,35 @@ To test the update notification:
 1. Deploy current version
 2. Open PWA on iPhone
 3. Make a code change
-4. Increment `CACHE_NAME` to `v4`
+4. Increment `CACHE_NAME` to `v5`
 5. Deploy new version
 6. Within 60 seconds, update notification appears
 7. Click "Reload Now"
 8. New version loads
+
+## Recent Updates
+
+### May 17, 2026 - API Caching Fix
+
+**Problem**: PWA was serving stale data for bottles and consumption history because the service worker cached all HTTP requests, including Supabase API calls.
+
+**Solution**: Modified service worker to exclude Supabase API requests from caching:
+
+```javascript
+const isSupabaseRequest = event.request.url.includes('.supabase.co');
+if (isSupabaseRequest) {
+  event.respondWith(fetch(event.request));
+  return;
+}
+```
+
+**Impact**:
+
+- Users always see fresh data without needing to reinstall the PWA
+- Static assets still cached for fast loading and offline support
+- Fixes issue where users had to delete and re-add app to see updates
+
+**Version**: `v4`
 
 ## Future Enhancements
 
@@ -227,8 +267,9 @@ Use semantic-like versioning:
 
 - `v1` → Initial release
 - `v2` → Major feature (Space Switcher)
-- `v3` → Update system (this release)
-- `v4` → Next major feature
+- `v3` → Update system
+- `v4` → API caching fix (fresh data)
+- `v5` → Next major feature
 
 ### Communication
 
