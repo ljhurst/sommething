@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useConsumption } from '@/hooks/useConsumption';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { WineType } from '@/lib/types';
+import { WineType, WineRatingValue } from '@/lib/types';
 import type { BottleInstance, Consumption, WineRating } from '@/lib/types';
 import type { User } from '@supabase/supabase-js';
 
@@ -55,7 +55,7 @@ describe('useConsumption', () => {
       space_id: 'space-1',
       consumed_at: '2024-01-02T00:00:00Z',
       notes: 'Great wine',
-      rating: { score: 85, date: '2024-01-02T00:00:00Z' },
+      rating: WineRatingValue.THUMBS_UP,
     },
   ];
 
@@ -92,7 +92,7 @@ describe('useConsumption', () => {
 
       const { result } = renderHook(() => useConsumption());
 
-      const testRating: WineRating = { score: 90, date: new Date().toISOString() };
+      const testRating: WineRating = WineRatingValue.THUMBS_UP;
 
       const success = await result.current.consumeBottle({
         bottle: mockBottle,
