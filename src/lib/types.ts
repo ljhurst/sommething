@@ -7,10 +7,12 @@ export enum WineType {
   OTHER = 'other',
 }
 
-export interface WineRating {
-  score: number;
-  date: string;
+export enum WineRatingValue {
+  THUMBS_UP = 'thumbs_up',
+  THUMBS_DOWN = 'thumbs_down',
 }
+
+export type WineRating = WineRatingValue;
 
 export interface Wine {
   id: string;

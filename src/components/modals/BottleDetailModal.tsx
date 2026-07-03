@@ -5,7 +5,8 @@ import { Modal } from './Modal';
 import { ModalActions } from '@/components/forms/ModalActions';
 import { getWineColor } from '@/lib/wineUtils';
 import { formatPrice } from '@/lib/formatUtils';
-import { type WineRating, type BottleInstance } from '@/lib/types';
+import { type BottleInstance, WineRatingValue } from '@/lib/types';
+import type { WineRating } from '@/lib/types';
 
 interface BottleDetailModalProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ export function BottleDetailModal({
 }: BottleDetailModalProps) {
   const [showConsumeForm, setShowConsumeForm] = useState(false);
   const [consumeNotes, setConsumeNotes] = useState('');
-  const [consumeRating, setConsumeRating] = useState<number | undefined>();
+  const [consumeRating, setConsumeRating] = useState<WineRatingValue | undefined>();
   const [submitting, setSubmitting] = useState(false);
 
   const canEdit = userRole === 'owner' || userRole === 'editor';
@@ -40,11 +41,7 @@ export function BottleDetailModal({
   const handleConsume = async () => {
     setSubmitting(true);
     try {
-      const rating =
-        consumeRating !== undefined
-          ? { score: consumeRating, date: new Date().toISOString() }
-          : undefined;
-      await onConsume(bottle.id, consumeNotes || undefined, rating);
+      await onConsume(bottle.id, consumeNotes || undefined, consumeRating);
       setConsumeNotes('');
       setConsumeRating(undefined);
       setShowConsumeForm(false);
@@ -164,9 +161,15 @@ export function BottleDetailModal({
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setConsumeRating(consumeRating === 85 ? undefined : 85)}
+                onClick={() =>
+                  setConsumeRating(
+                    consumeRating === WineRatingValue.THUMBS_UP
+                      ? undefined
+                      : WineRatingValue.THUMBS_UP
+                  )
+                }
                 className={`flex-1 px-4 py-3 rounded-lg border-2 transition-colors flex items-center justify-center ${
-                  consumeRating === 85
+                  consumeRating === WineRatingValue.THUMBS_UP
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'border-gray-300 hover:border-green-500 text-gray-700'
                 }`}
@@ -175,9 +178,15 @@ export function BottleDetailModal({
               </button>
               <button
                 type="button"
-                onClick={() => setConsumeRating(consumeRating === 50 ? undefined : 50)}
+                onClick={() =>
+                  setConsumeRating(
+                    consumeRating === WineRatingValue.THUMBS_DOWN
+                      ? undefined
+                      : WineRatingValue.THUMBS_DOWN
+                  )
+                }
                 className={`flex-1 px-4 py-3 rounded-lg border-2 transition-colors flex items-center justify-center ${
-                  consumeRating === 50
+                  consumeRating === WineRatingValue.THUMBS_DOWN
                     ? 'border-red-500 bg-red-50 text-red-700'
                     : 'border-gray-300 hover:border-red-500 text-gray-700'
                 }`}
