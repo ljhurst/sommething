@@ -94,3 +94,13 @@ export type UpdateBottleInstance = Partial<
 export type NewConsumption = Omit<Consumption, 'id' | 'consumed_at' | 'wine'>;
 
 export type BottleData = Pick<Wine, 'winery' | 'name' | 'type' | 'year' | 'price' | 'score'>;
+
+export interface WineFormData {
+  winery: string;
+  name: string;
+  type: WineType;
+  year: number;
+  price: string;
+  score: string;
+  notes: string;
+}

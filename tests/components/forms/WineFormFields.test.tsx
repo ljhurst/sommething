@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { WineFormFields, WineFormData } from '@/components/forms/WineFormFields';
-import { WineType } from '@/lib/types';
+import { WineFormFields } from '@/components/forms/WineFormFields';
+import { WineType, type WineFormData } from '@/lib/types';
 
 describe('WineFormFields', () => {
   const defaultFormData: WineFormData = {
