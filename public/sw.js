@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sommething-v5';
+const CACHE_NAME = 'sommething-v6';
 const urlsToCache = ['/', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -20,6 +20,33 @@ self.addEventListener('fetch', (event) => {
   const isSupabaseRequest = event.request.url.includes('.supabase.co');
   if (isSupabaseRequest) {
     event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // The Cache API only supports GET as a key — pass everything else (e.g. our
+  // POST /api/extract-label calls) straight through without touching the cache.
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // HTML navigations go network-first so a reload always tries to pick up the latest
+  // deploy, falling back to cache only when offline. Cache-first (below) is reserved for
+  // static assets, where staleness would otherwise survive a reload indefinitely.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache).catch((error) => {
+              console.debug('Cache put failed:', error);
+            });
+          });
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/')))
+    );
     return;
   }
 
