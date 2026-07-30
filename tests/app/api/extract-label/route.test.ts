@@ -51,36 +51,83 @@ describe('POST /api/extract-label', () => {
     expect(res.status).toBe(400);
   });
 
-  it('returns 400 when "data" is missing', async () => {
-    const res = await POST(makeRequest({ media_type: 'image/jpeg' }));
+  it('returns 400 when "images" is missing', async () => {
+    const res = await POST(makeRequest({}));
     expect(res.status).toBe(400);
   });
 
-  it('returns 400 when "media_type" is missing', async () => {
-    const res = await POST(makeRequest({ data: 'base64data' }));
+  it('returns 400 when "images" is an empty array', async () => {
+    const res = await POST(makeRequest({ images: [] }));
     expect(res.status).toBe(400);
   });
 
-  it('returns 400 when the image is too large', async () => {
+  it('returns 400 when "images" has more than 4 items', async () => {
+    const image = { data: 'base64data', media_type: 'image/jpeg' };
+    const res = await POST(makeRequest({ images: [image, image, image, image, image] }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when an image is missing "data"', async () => {
+    const res = await POST(makeRequest({ images: [{ media_type: 'image/jpeg' }] }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when an image is missing "media_type"', async () => {
+    const res = await POST(makeRequest({ images: [{ data: 'base64data' }] }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when an image is too large', async () => {
     const res = await POST(
-      makeRequest({ data: 'a'.repeat(11 * 1024 * 1024), media_type: 'image/jpeg' })
+      makeRequest({
+        images: [{ data: 'a'.repeat(7 * 1024 * 1024), media_type: 'image/jpeg' }],
+      })
     );
     expect(res.status).toBe(400);
   });
 
-  it('returns 200 with the extracted label on success', async () => {
+  it('returns 400 when the combined size of otherwise-valid images is too large', async () => {
+    const image = { data: 'a'.repeat(3 * 1024 * 1024), media_type: 'image/jpeg' };
+    const res = await POST(makeRequest({ images: [image, image, image] }));
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 200 with the extracted label for a single image', async () => {
     vi.mocked(extractWineLabel).mockResolvedValue(mockResponse);
 
-    const res = await POST(makeRequest({ data: 'base64data', media_type: 'image/jpeg' }));
+    const res = await POST(
+      makeRequest({ images: [{ data: 'base64data', media_type: 'image/jpeg' }] })
+    );
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(mockResponse);
   });
 
+  it('returns 200 with the extracted label for multiple images', async () => {
+    vi.mocked(extractWineLabel).mockResolvedValue(mockResponse);
+
+    const res = await POST(
+      makeRequest({
+        images: [
+          { data: 'front-base64', media_type: 'image/jpeg' },
+          { data: 'back-base64', media_type: 'image/jpeg' },
+        ],
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(extractWineLabel).toHaveBeenCalledWith([
+      { data: 'front-base64', media_type: 'image/jpeg' },
+      { data: 'back-base64', media_type: 'image/jpeg' },
+    ]);
+  });
+
   it('returns 502 when the Lambda call fails', async () => {
     vi.mocked(extractWineLabel).mockRejectedValue(new Error('boom'));
 
-    const res = await POST(makeRequest({ data: 'base64data', media_type: 'image/jpeg' }));
+    const res = await POST(
+      makeRequest({ images: [{ data: 'base64data', media_type: 'image/jpeg' }] })
+    );
 
     expect(res.status).toBe(502);
     expect((await res.json()).error).toBe('boom');

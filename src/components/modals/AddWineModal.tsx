@@ -4,9 +4,13 @@ import { useState } from 'react';
 import { Modal } from './Modal';
 import { Alert } from '@/components/ui/Alert';
 import { ModalActions } from '@/components/forms/ModalActions';
-import { WineFormFields, WineFormData } from '@/components/forms/WineFormFields';
+import { WineFormFields } from '@/components/forms/WineFormFields';
+import { LabelScanner } from '@/components/wine/LabelScanner';
+import { mapLabelToWineForm, summarizeLabelDetails } from '@/lib/dio/mapToWineForm';
+import { useWines } from '@/hooks/useWines';
 import { WineType } from '@/lib/types';
-import type { NewWine } from '@/lib/types';
+import type { NewWine, Wine, WineFormData } from '@/lib/types';
+import type { DioExtractResponse } from '@/lib/dio/types';
 
 interface AddWineModalProps {
   isOpen: boolean;
@@ -15,6 +19,7 @@ interface AddWineModalProps {
 }
 
 export function AddWineModal({ isOpen, onClose, onSubmit }: AddWineModalProps) {
+  const { searchWines } = useWines();
   const [formData, setFormData] = useState<WineFormData>({
     winery: '',
     name: '',
@@ -26,6 +31,30 @@ export function AddWineModal({ isOpen, onClose, onSubmit }: AddWineModalProps) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [possibleDuplicates, setPossibleDuplicates] = useState<Wine[]>([]);
+  const [priceSuggestion, setPriceSuggestion] = useState<number | null>(null);
+
+  const handleExtracted = async (response: DioExtractResponse) => {
+    setFormData((prev) => ({
+      ...prev,
+      ...mapLabelToWineForm(response.label, new Date().getFullYear()),
+      notes: summarizeLabelDetails(response.label),
+    }));
+    setPriceSuggestion(response.enrichment.matched ? (response.enrichment.price ?? null) : null);
+
+    const query = `${response.label.producer ?? ''} ${response.label.wine_name ?? ''}`.trim();
+    if (query) {
+      const matches = await searchWines(query);
+      setPossibleDuplicates(matches);
+    }
+  };
+
+  const handleUseSuggestedPrice = () => {
+    if (priceSuggestion != null) {
+      setFormData((prev) => ({ ...prev, price: String(priceSuggestion) }));
+      setPriceSuggestion(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,14 +101,43 @@ export function AddWineModal({ isOpen, onClose, onSubmit }: AddWineModalProps) {
         notes: '',
       });
       setError(null);
+      setPossibleDuplicates([]);
+      setPriceSuggestion(null);
       onClose();
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Add Wine" preventClose={isSubmitting}>
+      <div className="mb-4">
+        <LabelScanner onExtracted={handleExtracted} />
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <Alert variant="error">{error}</Alert>}
+
+        {possibleDuplicates.length > 0 && (
+          <Alert variant="warning">
+            Found {possibleDuplicates.length} similar wine
+            {possibleDuplicates.length !== 1 ? 's' : ''} already in your cellar:{' '}
+            {possibleDuplicates
+              .map((wine) => `${wine.winery} — ${wine.name} (${wine.year})`)
+              .join('; ')}
+          </Alert>
+        )}
+
+        {priceSuggestion != null && (
+          <Alert variant="info">
+            Found listed price: ${priceSuggestion.toFixed(2)}{' '}
+            <button
+              type="button"
+              onClick={handleUseSuggestedPrice}
+              className="underline hover:no-underline"
+            >
+              Use it
+            </button>
+          </Alert>
+        )}
 
         <WineFormFields value={formData} onChange={setFormData} disabled={isSubmitting} />
 

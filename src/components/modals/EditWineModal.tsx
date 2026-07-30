@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 import { Alert } from '@/components/ui/Alert';
 import { ModalActions } from '@/components/forms/ModalActions';
-import { WineFormFields, WineFormData } from '@/components/forms/WineFormFields';
+import { WineFormFields } from '@/components/forms/WineFormFields';
 import { WineType } from '@/lib/types';
-import type { Wine, UpdateWine } from '@/lib/types';
+import type { Wine, UpdateWine, WineFormData } from '@/lib/types';
 
 interface EditWineModalProps {
   isOpen: boolean;

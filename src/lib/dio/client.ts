@@ -47,7 +47,11 @@ export async function extractWineLabel(images: DioImageInput[]): Promise<DioExtr
   });
 
   if (!response.ok) {
-    const error = new Error(`dio Lambda request failed with status ${response.status}`);
+    const message =
+      response.status === 413
+        ? 'Image payload too large for the dio Lambda'
+        : `dio Lambda request failed with status ${response.status}`;
+    const error = new Error(message);
     logger.apiError('POST', functionUrl, error, { status: response.status });
     throw error;
   }

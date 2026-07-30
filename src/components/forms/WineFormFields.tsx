@@ -1,16 +1,6 @@
-import { WineType } from '@/lib/types';
+import { WineType, type WineFormData } from '@/lib/types';
 import { FormInput } from './FormInput';
 import { FormTextarea } from './FormTextarea';
-
-export interface WineFormData {
-  winery: string;
-  name: string;
-  type: WineType;
-  year: number;
-  price: string;
-  score: string;
-  notes: string;
-}
 
 export interface WineFormFieldsProps {
   value: WineFormData;

@@ -3,9 +3,13 @@
 import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 import { ModalActions } from '@/components/forms/ModalActions';
-import { WineFormFields, WineFormData } from '@/components/forms/WineFormFields';
-import { WineType, type NewWine, type Wine } from '@/lib/types';
+import { WineFormFields } from '@/components/forms/WineFormFields';
+import { WineType, type NewWine, type Wine, type WineFormData } from '@/lib/types';
 import { useWines } from '@/hooks/useWines';
+import { Alert } from '@/components/ui/Alert';
+import { LabelScanner } from '@/components/wine/LabelScanner';
+import { mapLabelToWineForm, summarizeLabelDetails } from '@/lib/dio/mapToWineForm';
+import type { DioExtractResponse } from '@/lib/dio/types';
 
 interface AddBottleModalProps {
   isOpen: boolean;
@@ -38,6 +42,8 @@ export function AddBottleModal({
     notes: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [possibleDuplicates, setPossibleDuplicates] = useState<Wine[]>([]);
+  const [priceSuggestion, setPriceSuggestion] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -54,8 +60,39 @@ export function AddBottleModal({
         score: '',
         notes: '',
       });
+      setPossibleDuplicates([]);
+      setPriceSuggestion(null);
     }
   }, [isOpen]);
+
+  const handleExtracted = async (response: DioExtractResponse) => {
+    setFormData((prev) => ({
+      ...prev,
+      ...mapLabelToWineForm(response.label, new Date().getFullYear()),
+      notes: summarizeLabelDetails(response.label),
+    }));
+    setMode('create');
+    setPriceSuggestion(response.enrichment.matched ? (response.enrichment.price ?? null) : null);
+
+    const query = `${response.label.producer ?? ''} ${response.label.wine_name ?? ''}`.trim();
+    if (query) {
+      const matches = await searchWines(query);
+      setPossibleDuplicates(matches);
+    }
+  };
+
+  const handleUseExisting = (wine: Wine) => {
+    setSelectedWine(wine);
+    setMode('select');
+    setPossibleDuplicates([]);
+  };
+
+  const handleUseSuggestedPrice = () => {
+    if (priceSuggestion != null) {
+      setFormData((prev) => ({ ...prev, price: String(priceSuggestion) }));
+      setPriceSuggestion(null);
+    }
+  };
 
   useEffect(() => {
     const performSearch = async () => {
@@ -113,6 +150,10 @@ export function AddBottleModal({
       title={`Add Bottle - Slot ${slotNumber}`}
       preventClose={submitting}
     >
+      <div className="mb-4">
+        <LabelScanner onExtracted={handleExtracted} />
+      </div>
+
       <div className="flex gap-2 mb-4">
         <button
           type="button"
@@ -200,7 +241,43 @@ export function AddBottleModal({
             )}
           </>
         ) : (
-          <WineFormFields value={formData} onChange={setFormData} disabled={submitting} />
+          <>
+            {possibleDuplicates.length > 0 && (
+              <Alert variant="warning">
+                <p className="mb-2">
+                  Found {possibleDuplicates.length} similar wine
+                  {possibleDuplicates.length !== 1 ? 's' : ''} already in your cellar:
+                </p>
+                <div className="space-y-1">
+                  {possibleDuplicates.map((wine) => (
+                    <button
+                      key={wine.id}
+                      type="button"
+                      onClick={() => handleUseExisting(wine)}
+                      className="block w-full text-left text-sm underline hover:no-underline"
+                    >
+                      {wine.winery} — {wine.name} ({wine.year}) · Use this instead
+                    </button>
+                  ))}
+                </div>
+              </Alert>
+            )}
+
+            {priceSuggestion != null && (
+              <Alert variant="info">
+                Found listed price: ${priceSuggestion.toFixed(2)}{' '}
+                <button
+                  type="button"
+                  onClick={handleUseSuggestedPrice}
+                  className="underline hover:no-underline"
+                >
+                  Use it
+                </button>
+              </Alert>
+            )}
+
+            <WineFormFields value={formData} onChange={setFormData} disabled={submitting} />
+          </>
         )}
 
         <ModalActions
