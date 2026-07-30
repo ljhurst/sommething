@@ -1,8 +1,14 @@
-const CACHE_NAME = 'sommething-v4';
+const CACHE_NAME = 'sommething-v5';
 const urlsToCache = ['/', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)));
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {

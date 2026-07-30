@@ -1,37 +1,81 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function UpdateNotification() {
   const [showUpdate, setShowUpdate] = useState(false);
+  const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
       return;
     }
 
+    let cleanupWaiting: (() => void) | undefined;
+
     navigator.serviceWorker.ready.then((registration) => {
+      registrationRef.current = registration;
+
+      const watchForWaiting = (worker: ServiceWorker | null) => {
+        cleanupWaiting?.();
+        if (!worker) return;
+
+        const onStateChange = () => {
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            setShowUpdate(true);
+          }
+        };
+        worker.addEventListener('statechange', onStateChange);
+        cleanupWaiting = () => worker.removeEventListener('statechange', onStateChange);
+      };
+
+      // A worker may already be waiting from an update detected before this mounted.
+      if (registration.waiting && navigator.serviceWorker.controller) {
+        setShowUpdate(true);
+      }
+
       registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              setShowUpdate(true);
-            }
-          });
-        }
+        watchForWaiting(registration.installing);
       });
 
-      const checkInterval = setInterval(() => {
-        registration.update();
-      }, 60000);
+      // iOS suspends timers/effects while a home-screen PWA is backgrounded, so a plain
+      // interval may never fire during a typical open-app/close-app session. Checking on
+      // visibility/focus ties the check to the moment the app actually gets to run JS.
+      const checkForUpdate = () => registration.update();
+      const onVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          checkForUpdate();
+        }
+      };
 
-      return () => clearInterval(checkInterval);
+      checkForUpdate();
+      document.addEventListener('visibilitychange', onVisibilityChange);
+      window.addEventListener('focus', checkForUpdate);
+      const checkInterval = setInterval(checkForUpdate, 60000);
+
+      return () => {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        window.removeEventListener('focus', checkForUpdate);
+        clearInterval(checkInterval);
+      };
     });
+
+    let reloadingOnce = false;
+    const onControllerChange = () => {
+      if (reloadingOnce) return;
+      reloadingOnce = true;
+      window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
+
+    return () => {
+      cleanupWaiting?.();
+      navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
+    };
   }, []);
 
   const handleUpdate = () => {
-    window.location.reload();
+    registrationRef.current?.waiting?.postMessage({ type: 'SKIP_WAITING' });
   };
 
   if (!showUpdate) return null;
