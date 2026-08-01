@@ -3,11 +3,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseOperation } from './useSupabaseQuery';
 import { TABLES, ERROR_MESSAGES } from '@/lib/constants';
 import type { Consumption, WineRating, BottleInstance, NewConsumption } from '@/lib/types';
+import { RemovalReason } from '@/lib/types';
 
 interface ConsumeBottleParams {
   bottle: BottleInstance;
   notes?: string;
   rating?: WineRating;
+  removalReason: RemovalReason;
 }
 
 export function useConsumption() {
@@ -32,6 +34,7 @@ export function useConsumption() {
         space_id: params.bottle.space_id,
         notes: params.notes,
         rating: params.rating,
+        removal_reason: params.removalReason,
       };
 
       const { error: insertError } = await supabase

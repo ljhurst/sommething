@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useConsumption } from '@/hooks/useConsumption';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { WineType, WineRatingValue } from '@/lib/types';
+import { WineType, WineRatingValue, RemovalReason } from '@/lib/types';
 import type { BottleInstance, Consumption, WineRating } from '@/lib/types';
 import type { User } from '@supabase/supabase-js';
 
@@ -56,6 +56,7 @@ describe('useConsumption', () => {
       consumed_at: '2024-01-02T00:00:00Z',
       notes: 'Great wine',
       rating: WineRatingValue.THUMBS_UP,
+      removal_reason: RemovalReason.CONSUMED,
     },
   ];
 
@@ -98,6 +99,7 @@ describe('useConsumption', () => {
         bottle: mockBottle,
         notes: 'Excellent',
         rating: testRating,
+        removalReason: RemovalReason.CONSUMED,
       });
 
       expect(success).toBe(true);
@@ -108,6 +110,7 @@ describe('useConsumption', () => {
         space_id: 'space-1',
         notes: 'Excellent',
         rating: testRating,
+        removal_reason: RemovalReason.CONSUMED,
       });
       expect(mockDelete).toHaveBeenCalled();
       expect(mockEq).toHaveBeenCalledWith('id', 'bottle-1');
@@ -125,7 +128,10 @@ describe('useConsumption', () => {
 
       const { result } = renderHook(() => useConsumption());
 
-      const success = await result.current.consumeBottle({ bottle: mockBottle });
+      const success = await result.current.consumeBottle({
+        bottle: mockBottle,
+        removalReason: RemovalReason.CONSUMED,
+      });
 
       await waitFor(() => {
         expect(result.current.error).toBe('You must be logged in to perform this action');
@@ -151,7 +157,10 @@ describe('useConsumption', () => {
 
       const { result } = renderHook(() => useConsumption());
 
-      const success = await result.current.consumeBottle({ bottle: invalidBottle });
+      const success = await result.current.consumeBottle({
+        bottle: invalidBottle,
+        removalReason: RemovalReason.CONSUMED,
+      });
 
       await waitFor(() => {
         expect(result.current.error).toBe('Invalid data provided');
@@ -178,7 +187,10 @@ describe('useConsumption', () => {
 
       const { result } = renderHook(() => useConsumption());
 
-      const success = await result.current.consumeBottle({ bottle: mockBottle });
+      const success = await result.current.consumeBottle({
+        bottle: mockBottle,
+        removalReason: RemovalReason.CONSUMED,
+      });
 
       await waitFor(() => {
         expect(result.current.error).toBe('Insert failed');
@@ -212,7 +224,10 @@ describe('useConsumption', () => {
 
       const { result } = renderHook(() => useConsumption());
 
-      const success = await result.current.consumeBottle({ bottle: mockBottle });
+      const success = await result.current.consumeBottle({
+        bottle: mockBottle,
+        removalReason: RemovalReason.CONSUMED,
+      });
 
       await waitFor(() => {
         expect(result.current.error).toBe('Delete failed');
@@ -245,7 +260,10 @@ describe('useConsumption', () => {
 
       const { result } = renderHook(() => useConsumption());
 
-      const success = await result.current.consumeBottle({ bottle: mockBottle });
+      const success = await result.current.consumeBottle({
+        bottle: mockBottle,
+        removalReason: RemovalReason.CONSUMED,
+      });
 
       expect(success).toBe(true);
       expect(mockInsert).toHaveBeenCalledWith(
@@ -253,6 +271,86 @@ describe('useConsumption', () => {
           wine_id: 'wine-1',
           consumed_by_user_id: 'user-123',
           space_id: 'space-1',
+        })
+      );
+    });
+
+    it('should record a gift removal without a rating', async () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: mockUser,
+        session: null,
+        loading: false,
+        signUp: vi.fn(),
+        signIn: vi.fn(),
+        signOut: vi.fn(),
+      });
+
+      const mockInsert = vi.fn().mockResolvedValue({ error: null });
+      const mockEq = vi.fn().mockResolvedValue({ error: null });
+      const mockDelete = vi.fn().mockReturnValue({ eq: mockEq });
+      const mockFrom = vi.fn((table: string) => {
+        if (table === 'consumptions') {
+          return { insert: mockInsert };
+        }
+        return { delete: mockDelete };
+      });
+
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
+
+      const { result } = renderHook(() => useConsumption());
+
+      const success = await result.current.consumeBottle({
+        bottle: mockBottle,
+        notes: 'Gave it to Sam',
+        removalReason: RemovalReason.GIFT,
+      });
+
+      expect(success).toBe(true);
+      expect(mockInsert).toHaveBeenCalledWith({
+        wine_id: 'wine-1',
+        consumed_by_user_id: 'user-123',
+        space_id: 'space-1',
+        notes: 'Gave it to Sam',
+        rating: undefined,
+        removal_reason: RemovalReason.GIFT,
+      });
+    });
+
+    it('should record an other removal without a rating', async () => {
+      vi.mocked(useAuth).mockReturnValue({
+        user: mockUser,
+        session: null,
+        loading: false,
+        signUp: vi.fn(),
+        signIn: vi.fn(),
+        signOut: vi.fn(),
+      });
+
+      const mockInsert = vi.fn().mockResolvedValue({ error: null });
+      const mockEq = vi.fn().mockResolvedValue({ error: null });
+      const mockDelete = vi.fn().mockReturnValue({ eq: mockEq });
+      const mockFrom = vi.fn((table: string) => {
+        if (table === 'consumptions') {
+          return { insert: mockInsert };
+        }
+        return { delete: mockDelete };
+      });
+
+      vi.mocked(supabase.from).mockImplementation(mockFrom as unknown as typeof supabase.from);
+
+      const { result } = renderHook(() => useConsumption());
+
+      const success = await result.current.consumeBottle({
+        bottle: mockBottle,
+        notes: 'Bottle broke',
+        removalReason: RemovalReason.OTHER,
+      });
+
+      expect(success).toBe(true);
+      expect(mockInsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          removal_reason: RemovalReason.OTHER,
+          rating: undefined,
         })
       );
     });

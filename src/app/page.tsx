@@ -23,7 +23,15 @@ import { useModalState } from '@/hooks/useModalState';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { useAuth } from '@/contexts/AuthContext';
 import { WineGlassIcon } from '@/components/icons';
-import type { BottleInstance, NewWine, NewSpace, WineRating, Wine, UpdateWine } from '@/lib/types';
+import {
+  RemovalReason,
+  type BottleInstance,
+  type NewWine,
+  type NewSpace,
+  type WineRating,
+  type Wine,
+  type UpdateWine,
+} from '@/lib/types';
 
 const WineFridge3D = dynamic(
   () => import('@/components/grid/WineFridge3D').then((mod) => ({ default: mod.WineFridge3D })),
@@ -121,11 +129,16 @@ export default function Home() {
     await addBottleWithWine(wineIdOrData, slotPosition);
   };
 
-  const handleConsumeBottle = async (bottleId: string, notes?: string, rating?: WineRating) => {
+  const handleConsumeBottle = async (
+    bottleId: string,
+    notes?: string,
+    rating?: WineRating,
+    removalReason: RemovalReason = RemovalReason.CONSUMED
+  ) => {
     const bottle = bottles.find((b) => b.id === bottleId);
     if (!bottle) return;
 
-    const success = await consumeBottle({ bottle, notes, rating });
+    const success = await consumeBottle({ bottle, notes, rating, removalReason });
     if (success) {
       await refetch();
     }

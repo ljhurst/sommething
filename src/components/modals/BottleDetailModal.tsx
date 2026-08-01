@@ -5,14 +5,21 @@ import { Modal } from './Modal';
 import { ModalActions } from '@/components/forms/ModalActions';
 import { getWineColor } from '@/lib/wineUtils';
 import { formatPrice } from '@/lib/formatUtils';
-import { type BottleInstance, WineRatingValue } from '@/lib/types';
+import { type BottleInstance, RemovalReason, WineRatingValue } from '@/lib/types';
 import type { WineRating } from '@/lib/types';
+
+type Mode = 'closed' | 'consumed' | 'alt';
 
 interface BottleDetailModalProps {
   isOpen: boolean;
   bottle: BottleInstance | null;
   onClose: () => void;
-  onConsume: (bottleId: string, notes?: string, rating?: WineRating) => Promise<void>;
+  onConsume: (
+    bottleId: string,
+    notes?: string,
+    rating?: WineRating,
+    removalReason?: RemovalReason
+  ) => Promise<void>;
   onNavigate?: (direction: 'prev' | 'next') => void;
   onEditWine?: (wineId: string) => void;
   userRole?: 'owner' | 'editor' | 'viewer';
@@ -27,9 +34,13 @@ export function BottleDetailModal({
   onEditWine,
   userRole = 'owner',
 }: BottleDetailModalProps) {
-  const [showConsumeForm, setShowConsumeForm] = useState(false);
+  const [mode, setMode] = useState<Mode>('closed');
   const [consumeNotes, setConsumeNotes] = useState('');
   const [consumeRating, setConsumeRating] = useState<WineRatingValue | undefined>();
+  const [altReason, setAltReason] = useState<
+    RemovalReason.GIFT | RemovalReason.OTHER | undefined
+  >();
+  const [altNotes, setAltNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const canEdit = userRole === 'owner' || userRole === 'editor';
@@ -38,16 +49,36 @@ export function BottleDetailModal({
 
   const wine = bottle.wine;
 
+  const resetForm = () => {
+    setMode('closed');
+    setConsumeNotes('');
+    setConsumeRating(undefined);
+    setAltReason(undefined);
+    setAltNotes('');
+  };
+
   const handleConsume = async () => {
     setSubmitting(true);
     try {
-      await onConsume(bottle.id, consumeNotes || undefined, consumeRating);
-      setConsumeNotes('');
-      setConsumeRating(undefined);
-      setShowConsumeForm(false);
+      await onConsume(bottle.id, consumeNotes || undefined, consumeRating, RemovalReason.CONSUMED);
+      resetForm();
       onClose();
     } catch (error) {
       console.error('Failed to consume bottle:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAltSubmit = async () => {
+    if (!altReason) return;
+    setSubmitting(true);
+    try {
+      await onConsume(bottle.id, altNotes || undefined, undefined, altReason);
+      resetForm();
+      onClose();
+    } catch (error) {
+      console.error('Failed to remove bottle:', error);
     } finally {
       setSubmitting(false);
     }
@@ -103,11 +134,11 @@ export function BottleDetailModal({
         </div>
       )}
 
-      {!showConsumeForm ? (
+      {mode === 'closed' ? (
         <div className="space-y-3">
           {canEdit && (
             <button
-              onClick={() => setShowConsumeForm(true)}
+              onClick={() => setMode('consumed')}
               className="w-full px-4 py-3 bg-wine-red text-white rounded-lg hover:bg-wine-red/90 transition-colors font-medium"
             >
               Mark as Consumed
@@ -128,6 +159,16 @@ export function BottleDetailModal({
                 />
               </svg>
               Edit Wine Details
+            </button>
+          )}
+
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => setMode('alt')}
+              className="w-full text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              Something else?
             </button>
           )}
 
@@ -154,7 +195,7 @@ export function BottleDetailModal({
             </p>
           )}
         </div>
-      ) : (
+      ) : mode === 'consumed' ? (
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">How was it?</label>
@@ -211,15 +252,66 @@ export function BottleDetailModal({
           </div>
 
           <ModalActions
-            onCancel={() => {
-              setShowConsumeForm(false);
-              setConsumeNotes('');
-              setConsumeRating(undefined);
-            }}
+            onCancel={resetForm}
             submitLabel="Confirm"
             submitType="button"
             onSubmit={handleConsume}
             submitting={submitting}
+          />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              What happened to this bottle?
+            </label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setAltReason(RemovalReason.GIFT)}
+                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-colors flex items-center justify-center ${
+                  altReason === RemovalReason.GIFT
+                    ? 'border-wine-red bg-wine-red/10 text-wine-red'
+                    : 'border-gray-300 hover:border-wine-red text-gray-700'
+                }`}
+              >
+                Gift
+              </button>
+              <button
+                type="button"
+                onClick={() => setAltReason(RemovalReason.OTHER)}
+                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-colors flex items-center justify-center ${
+                  altReason === RemovalReason.OTHER
+                    ? 'border-wine-red bg-wine-red/10 text-wine-red'
+                    : 'border-gray-300 hover:border-wine-red text-gray-700'
+                }`}
+              >
+                Other
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="alt-notes" className="block text-sm font-medium text-gray-700 mb-2">
+              Notes (Optional)
+            </label>
+            <textarea
+              id="alt-notes"
+              value={altNotes}
+              onChange={(e) => setAltNotes(e.target.value)}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-wine-red focus:border-transparent text-gray-900"
+              placeholder="Who'd you give it to? What happened?"
+            />
+          </div>
+
+          <ModalActions
+            onCancel={resetForm}
+            submitLabel="Confirm"
+            submitType="button"
+            onSubmit={handleAltSubmit}
+            submitting={submitting}
+            submitDisabled={!altReason}
           />
         </div>
       )}

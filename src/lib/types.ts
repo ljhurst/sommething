@@ -14,6 +14,12 @@ export enum WineRatingValue {
 
 export type WineRating = WineRatingValue;
 
+export enum RemovalReason {
+  CONSUMED = 'consumed',
+  GIFT = 'gift',
+  OTHER = 'other',
+}
+
 export interface Wine {
   id: string;
   created_by_user_id: string;
@@ -74,6 +80,7 @@ export interface Consumption {
   consumed_at: string;
   notes?: string;
   rating?: WineRating;
+  removal_reason: RemovalReason;
   wine?: Wine;
 }
 
