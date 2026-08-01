@@ -9,7 +9,7 @@ import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { AuthModal } from '@/components/modals/AuthModal';
 import { getErrorMessage } from '@/lib/errorHandling';
-import type { OAuthAuthorizationDetails } from '@supabase/supabase-js';
+import { isAuthSessionMissingError, type OAuthAuthorizationDetails } from '@supabase/supabase-js';
 
 export default function OAuthConsentPage() {
   return (
@@ -48,6 +48,14 @@ function OAuthConsentContent() {
       if (cancelled) return;
 
       if (error) {
+        if (isAuthSessionMissingError(error)) {
+          // The cached session AuthContext saw was stale/expired by the time this ran.
+          // Sign out to clear it so AuthContext flips `user` to null and the login modal
+          // shows again, rather than leaving the user stuck on an error with no way forward.
+          await supabase.auth.signOut();
+          setLoading(false);
+          return;
+        }
         setError(getErrorMessage(error, 'Failed to load authorization request'));
       } else if ('redirect_url' in data) {
         window.location.href = data.redirect_url;
@@ -77,6 +85,13 @@ function OAuthConsentContent() {
         });
 
     if (error) {
+      if (isAuthSessionMissingError(error)) {
+        await supabase.auth.signOut();
+        setDetails(null);
+        setLoading(false);
+        setDeciding(false);
+        return;
+      }
       setError(getErrorMessage(error, 'Failed to record your decision'));
       setDeciding(false);
       return;
