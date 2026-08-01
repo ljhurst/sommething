@@ -16,6 +16,7 @@
     "prettier"
   ],
   "plugins": ["react", "react-hooks", "@typescript-eslint"],
+  "ignorePatterns": ["!src/app/.well-known"],
   "settings": {
     "react": {
       "version": "detect"

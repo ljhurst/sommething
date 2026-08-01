@@ -1,6 +1,6 @@
 {
   "name": "sommething",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -31,6 +31,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@modelcontextprotocol/server": "^2.0.0",
     "@react-three/drei": "latest",
     "@react-three/fiber": "^9.5.0",
     "@smithy/protocol-http": "^5.5.16",
@@ -38,10 +39,12 @@
     "@supabase/supabase-js": "^2.47.10",
     "@vercel/oidc-aws-credentials-provider": "^3.3.1",
     "framer-motion": "^11.15.0",
+    "mcp-handler": "^2.1.0",
     "next": "16.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "three": "^0.172.0"
+    "three": "^0.172.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
