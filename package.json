@@ -44,7 +44,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "three": "^0.172.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
