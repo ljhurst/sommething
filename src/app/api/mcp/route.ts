@@ -19,6 +19,7 @@ const handler = createMcpHandler((server) => {
         'drink tonight, or wants gift/selection suggestions from what they actually own. There ' +
         'are at most about two dozen bottles, so this always returns the full current inventory.',
       inputSchema: z.object({}),
+      annotations: { readOnlyHint: true },
     },
     async (_args, ctx) => {
       const token = ctx.http?.authInfo?.token;
@@ -51,6 +52,7 @@ const handler = createMcpHandler((server) => {
         'Do NOT call this for simple pairing questions like "what goes with steak" — use ' +
         'list_wines and your own wine knowledge for those.',
       inputSchema: z.object({}),
+      annotations: { readOnlyHint: true },
     },
     async (_args, ctx) => {
       const token = ctx.http?.authInfo?.token;
